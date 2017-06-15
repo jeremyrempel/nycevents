@@ -20,8 +20,8 @@ const EventList = ({onPress}) => (
     <ListItem itemDivider>
       <Text>Tuesday, July 5</Text>
     </ListItem>
-      <EventRow title='Dog show, Hudson Yards' onPress={onPress} description='They&quot;re cut fluffy and stuff. They do stuff. Come check it out' />
-
+    <EventRow title='Dog show, Hudson Yards' onPress={onPress} description='They&quot;re cute, fluffy and run around and bark. They might do some tricks. Come check it out' />
+    <EventRow title='Edgar Allan Poe Illustrated, Poe Park Visitor Center (in Poe Park), Bronx' onPress={onPress} description='He was a famous writer. Come hang out, talk and meet other Edgar fans.' />
   </List>
 )
 
