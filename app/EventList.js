@@ -2,7 +2,7 @@
  * Created by jrempel on 6/14/17.
  */
 import React from 'react'
-import { List, ListItem, Text, Body, Right, Icon } from 'native-base'
+import { Icon, List, ListItem, Right, Text } from 'native-base'
 import EventRow from './EventRow'
 
 const EventList = ({onPress}) => (

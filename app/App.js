@@ -3,26 +3,28 @@
  */
 
 import React, { Component } from 'react'
-import {
-  Body,
-  Button,
-  Container,
-  Content,
-  Footer,
-  FooterTab,
-  Header,
-  Icon,
-  Left,
-  Right,
-  Text,
-  Title
-} from 'native-base'
+import { Body, Button, Container, Content, Footer, FooterTab, Header, Icon, Left, Right, Title } from 'native-base'
 import EventList from './EventList'
+import FooterNav from './FooterNav'
 
 export default class NycEvents extends Component {
 
+  constructor () {
+    super()
+
+    this.state = {
+      currentView: 'NEARME'
+    }
+
+    this.handleChangeView = this.handleChangeView.bind(this);
+  }
+
   onPress () {
     console.log('testing')
+  }
+
+  handleChangeView (newView) {
+    console.log('New View: ', newView)
   }
 
   render () {
@@ -42,26 +44,7 @@ export default class NycEvents extends Component {
         <Content>
           <EventList onPress={this.onPress}/>
         </Content>
-        <Footer>
-          <FooterTab>
-            <Button vertical active>
-              <Icon name="compass" active />
-              <Text>Near Me</Text>
-            </Button>
-            <Button vertical>
-              <Icon name="map" />
-              <Text>Map</Text>
-            </Button>
-            <Button  >
-              <Icon name="calendar" />
-              <Text>Calendar</Text>
-            </Button>
-            <Button vertical>
-              <Icon name="book" />
-              <Text>Browse</Text>
-            </Button>
-          </FooterTab>
-        </Footer>
+        <FooterNav handleChangeView={this.handleChangeView}/>
       </Container>
     )
   }
