@@ -12,7 +12,7 @@ export default class FooterNavButton extends Component {
     }
 
     return (
-      <Button vertical {...conditionalProps} onPress={this.props.handleChangeView}>
+      <Button vertical {...conditionalProps} onPress={() => this.props.handleChangeView(this.props.title.toUpperCase())}>
         <Icon name={this.props.icon} {...conditionalProps} />
         <Text>{this.props.title} </Text>
       </Button>
