@@ -6,7 +6,7 @@ import React, { Component } from 'react'
 import { Body, Button, Container, Content, Footer, FooterTab, Header, Icon, Left, Right, Title } from 'native-base'
 import EventList from './EventList'
 import FooterNav from './FooterNav'
-import MapView from './MapView'
+import EventMapView from './EventMapView'
 
 export default class NycEvents extends Component {
 
@@ -38,7 +38,7 @@ export default class NycEvents extends Component {
         contentView = <EventList onPress={this.onPress}/>;
         break;
       case 'Map':
-        contentView = <MapView/>
+        contentView = <EventMapView/>
         break;
     }
 
