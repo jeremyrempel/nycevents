@@ -6,6 +6,7 @@ import React, { Component } from 'react'
 import { Body, Button, Container, Content, Footer, FooterTab, Header, Icon, Left, Right, Title } from 'native-base'
 import EventList from './EventList'
 import FooterNav from './FooterNav'
+import MapView from './MapView'
 
 export default class NycEvents extends Component {
 
@@ -13,7 +14,7 @@ export default class NycEvents extends Component {
     super()
 
     this.state = {
-      currentView: 'NEARME'
+      currentView: 'Near Me'
     }
 
     this.handleChangeView = this.handleChangeView.bind(this);
@@ -24,10 +25,23 @@ export default class NycEvents extends Component {
   }
 
   handleChangeView (newView) {
-    console.log('New View: ', newView)
+    this.setState({currentView: newView}, () => {
+      console.log('State: ', this.state)
+    })
   }
 
   render () {
+
+    let contentView;
+    switch(this.state.currentView) {
+      case 'Near Me':
+        contentView = <EventList onPress={this.onPress}/>;
+        break;
+      case 'Map':
+        contentView = <MapView/>
+        break;
+    }
+
     return (
       <Container>
         <Header>
@@ -37,14 +51,14 @@ export default class NycEvents extends Component {
             </Button>
           </Left>
           <Body>
-            <Title>Near Me</Title>
+            <Title>{this.state.currentView}</Title>
           </Body>
           <Right />
         </Header>
         <Content>
-          <EventList onPress={this.onPress}/>
+          {contentView}
         </Content>
-        <FooterNav handleChangeView={this.handleChangeView}/>
+        <FooterNav handleChangeView={this.handleChangeView} currentView={this.state.currentView}/>
       </Container>
     )
   }
