@@ -1,65 +1,60 @@
-/**
- * Created by jrempel on 6/14/17.
- */
+import React from "react";
+import { AppRegistry } from "react-native";
+import {
+  Container,
+  Title,
+  Header,
+  Content,
+  Icon,
+  Button,
+  Left,
+  Right,
+  Body
+} from "native-base";
+import { StackNavigator } from "react-navigation";
+import EventList from "./EventList";
+import EventViewScreen from "./EventViewScreen";
 
-import React, { Component } from 'react'
-import { Body, Button, Container, Content, Footer, FooterTab, Header, Icon, Left, Right, Title } from 'native-base'
-import EventList from './EventList'
-import FooterNav from './FooterNav'
-import EventMapView from './EventMapView'
+class HomeScreen extends React.Component {
+  static navigationOptions = { header: null };
 
-export default class NycEvents extends Component {
-
-  constructor () {
-    super()
-
-    this.state = {
-      currentView: 'Near Me'
-    }
-
-    this.handleChangeView = this.handleChangeView.bind(this);
-  }
-
-  onPress () {
-    console.log('testing')
-  }
-
-  handleChangeView (newView) {
-    this.setState({currentView: newView}, () => {
-      console.log('State: ', this.state)
-    })
-  }
-
-  render () {
-
-    let contentView;
-    switch(this.state.currentView) {
-      case 'Near Me':
-        contentView = <EventList onPress={this.onPress}/>;
-        break;
-      case 'Map':
-        contentView = <EventMapView/>
-        break;
-    }
+  render() {
+    const { navigate } = this.props.navigation;
 
     return (
       <Container>
         <Header>
           <Left>
             <Button transparent>
-              <Icon name='menu'/>
+              <Icon ios="ios-menu" android="md-menu" />
             </Button>
           </Left>
           <Body>
-            <Title>{this.state.currentView}</Title>
+            <Title>Near Me</Title>
           </Body>
           <Right />
         </Header>
-        <Content>
-          {contentView}
+        <Content style={{ backgroundColor: "white" }}>
+          <EventList
+            onPress={() => navigate("EventView", { event: "NYC Pride Week" })}
+          />
         </Content>
-        <FooterNav handleChangeView={this.handleChangeView} currentView={this.state.currentView}/>
       </Container>
-    )
+    );
   }
 }
+
+const App = StackNavigator(
+  {
+    Home: { screen: HomeScreen },
+    EventView: { screen: EventViewScreen }
+  },
+  {
+    initialRouteName: "Home",
+    headerMode: "screen",
+    headerComponent: Header
+  }
+);
+export default App;
+
+AppRegistry.registerComponent("NycEvents", () => App);
