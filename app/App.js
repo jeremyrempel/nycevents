@@ -36,7 +36,7 @@ class HomeScreen extends React.Component {
         </Header>
         <Content style={{ backgroundColor: "white" }}>
           <EventList
-            onPress={() => navigate("EventView", { event: "NYC Pride Week" })}
+            onPress={() => navigate("EventView", { name: "NYC Pride Week" })}
           />
         </Content>
       </Container>

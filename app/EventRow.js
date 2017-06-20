@@ -5,7 +5,7 @@ import React from "react";
 import { ListItem, Text, Body, Right, Icon } from "native-base";
 
 const EventRow = ({ onPress, title, description }) =>
-  <ListItem>
+  <ListItem onPress={onPress}>
     <Body>
       <Text>
         {title}
