@@ -15,12 +15,24 @@ import { StackNavigator } from "react-navigation";
 import EventList from "./EventList";
 import EventViewScreen from "./EventViewScreen";
 
+const events = require("./data/events_300_rss.json");
+
 class HomeScreen extends React.Component {
   static navigationOptions = { header: null };
 
-  render() {
+  constructor() {
+    super();
+
+    this.rowSelect = this.rowSelect.bind(this);
+  }
+
+  rowSelect(selectedEvent) {
     const { navigate } = this.props.navigation;
 
+    navigate("EventView", { event: selectedEvent });
+  }
+
+  render() {
     return (
       <Container>
         <Header>
@@ -35,9 +47,7 @@ class HomeScreen extends React.Component {
           <Right />
         </Header>
         <Content style={{ backgroundColor: "white" }}>
-          <EventList
-            onPress={() => navigate("EventView", { name: "NYC Pride Week" })}
-          />
+          <EventList events={events} onPress={this.rowSelect} />
         </Content>
       </Container>
     );

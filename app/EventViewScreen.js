@@ -22,6 +22,7 @@ export default class EventViewScreen extends React.Component {
 
   render() {
     const { goBack } = this.props.navigation;
+    const { params } = this.props.navigation.state;
 
     return (
       <Container>
@@ -32,7 +33,7 @@ export default class EventViewScreen extends React.Component {
             </Button>
           </Left>
           <Body>
-            <Title>Pride Week</Title>
+            <Title>{params.event.title}</Title>
           </Body>
           <Right />
         </Header>
@@ -44,12 +45,7 @@ export default class EventViewScreen extends React.Component {
           <ListItem>
             <Body>
               <Text>
-                LGBT Pride is an annual event which began in New York in 1970 on
-                the first anniversary of the Stonewall Uprising. Heritage of
-                Pride works toward a future without discrimination where all
-                people have equal rights under the law. We do this by producing
-                LGBT Pride events that inspire, educate, commemorate and
-                celebrate our diverse community.
+                {params.event.description}
               </Text>
             </Body>
           </ListItem>
