@@ -20,6 +20,7 @@ export default class EventList extends Component {
   render() {
     return (
       <List
+        style={{ backgroundColor: "white" }}
         dataArray={this.props.events}
         renderRow={item =>
           <Content>
@@ -35,7 +36,9 @@ export default class EventList extends Component {
               {this.showImage(item.image)}
               <Body>
                 <Text>{item.title}</Text>
-                <Text note>{item.startdate} @ {item.starttime}</Text>
+                <Text note>
+                  {item.startdate} @ {item.starttime} - {item.endtime}
+                </Text>
                 <Text note>{item.location}</Text>
               </Body>
               <Right>

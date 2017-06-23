@@ -13,7 +13,8 @@ import {
   Title,
   Body,
   Right,
-  Icon
+  Icon,
+  H1
 } from "native-base";
 import { Linking, Image } from "react-native";
 
@@ -22,7 +23,7 @@ export default class EventViewScreen extends React.Component {
 
   render() {
     const { goBack } = this.props.navigation;
-    const { params } = this.props.navigation.state;
+    const { event } = this.props.navigation.state.params;
 
     return (
       <Container>
@@ -33,26 +34,28 @@ export default class EventViewScreen extends React.Component {
             </Button>
           </Left>
           <Body>
-            <Title>{params.event.title}</Title>
+            <Title>{event.title}</Title>
           </Body>
           <Right />
         </Header>
         <Content style={{ backgroundColor: "white" }}>
-          <Image
-            source={require("./img/event/pride.jpg")}
-            style={{ height: 200 }}
-          />
+          {this.showImage(event.image)}
+          <ListItem>
+            <H1>{event.title}</H1>
+          </ListItem>
           <ListItem>
             <Body>
               <Text>
-                {params.event.description}
+                {event.description
+                  .replace("</p>", "\n")
+                  .replace(/<(?:.|\n)*?>/gm, "")}
               </Text>
             </Body>
           </ListItem>
           <ListItem>
             <Body>
               <Text note>Date, Time</Text>
-              <Text>June 18, All Day</Text>
+              <Text>{event.startdate} @ {event.starttime}y</Text>
             </Body>
           </ListItem>
           <ListItem>
@@ -61,21 +64,45 @@ export default class EventViewScreen extends React.Component {
               <Text>Check website for event details</Text>
             </Body>
           </ListItem>
-          <ListItem onPress={() => Linking.openURL("http://www.nycpride.org")}>
+          <ListItem onPress={() => Linking.openURL(event.link)}>
             <Body>
               <Text note>Website</Text>
-              <Text style={{ color: "blue" }}>nycpride.org</Text>
+              <Text style={{ color: "blue" }}>{event.link}</Text>
             </Body>
             <Right><Icon name="arrow-forward" /></Right>
           </ListItem>
           <ListItem>
             <Body>
-              <Text note>Contact Name</Text>
-              <Text>Heritage of Pride</Text>
+              <Text note>Contact Phone</Text>
+              <Text>{event.contact_phone}</Text>
             </Body>
           </ListItem>
+          <ListItem>
+            <Body>
+              <Text note>Categories</Text>
+              <Text>{event.categories}</Text>
+            </Body>
+          </ListItem>
+
         </Content>
       </Container>
     );
+  }
+
+  showImage(remoteImageUrl) {
+    if (remoteImageUrl.length > 0) {
+      return (
+        <Image
+          style={{
+            width: 400,
+            height: 300,
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center"
+          }}
+          source={{ uri: remoteImageUrl.replace("http", "https") }}
+        />
+      );
+    }
   }
 }
