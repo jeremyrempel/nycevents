@@ -1,3 +1,5 @@
+"use strict";
+
 import React from "react";
 import { ActivityIndicator } from "react-native";
 import {
@@ -12,8 +14,10 @@ import {
   Title
 } from "native-base";
 import EventList from "./EventList";
+import SearchView from "./SearchView";
 
 const dataSource = "https://www.nycgovparks.org/xml/events_300_rss.json";
+const mileRadius = 3;
 
 export default class HomeScreen extends React.Component {
   static navigationOptions = { header: null };
@@ -24,19 +28,48 @@ export default class HomeScreen extends React.Component {
     this.state = {
       isLoading: true,
       events: [],
-      error: null
+      error: null,
+      latitude: null,
+      longitude: null
     };
 
     this.rowSelect = this.rowSelect.bind(this);
   }
 
   componentDidMount() {
-    return fetch(dataSource)
+    fetch(dataSource)
       .then(response => response.json())
       .then(responseJson => {
+        let dateNow = Date.now();
+
+        // filter out any dates before now
+        let eventsAfterNow = responseJson.filter(e => {
+          const dateStrSplit = e.startdate.split("-");
+
+          // https://stackoverflow.com/questions/141348/what-is-the-best-way-to-parse-a-time-into-a-date-object-from-user-input-in-javas
+          const time = e.starttime.match(/(\d+)(?::(\d\d))?\s*(p?)/);
+          const hours = parseInt(
+            parseInt(time[1]) + (parseInt(time[1]) < 12 && time[3] ? 12 : 0)
+          );
+          const minutes = parseInt(time[2]) || 0;
+
+          // year, month, date, hour, minute, second, millisecond
+          const dateStart = new Date(
+            dateStrSplit[0],
+            dateStrSplit[1] - 1,
+            dateStrSplit[2],
+            hours,
+            minutes,
+            0,
+            0
+          );
+
+          return dateStart.getTime() >= dateNow;
+        });
+
         this.setState({
           isLoading: false,
-          events: responseJson
+          events: eventsAfterNow
         });
       })
       .catch(error => {
@@ -47,11 +80,45 @@ export default class HomeScreen extends React.Component {
         });
         console.error(error);
       });
+
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        this.setState({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          error: null
+        });
+      },
+      error => this.setState({ error: error.message }),
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+    );
   }
 
   rowSelect(selectedEvent) {
     const { navigate } = this.props.navigation;
     navigate("EventView", { event: selectedEvent });
+  }
+
+  eventsFiltered() {
+    return this.state.events.filter(e => {
+      // filter on current location
+      // 0.01 degrees = 1.1132 km = 0.69 miles
+      const p = 0.691710411 * 0.01 * mileRadius;
+      const eventCoord = e.coordinates.split(",");
+      const eventLat = Number(eventCoord[0]);
+      const eventLong = Number(eventCoord[1]);
+
+      if (
+        eventLat > this.state.latitude + p ||
+        eventLat < this.state.latitude - p ||
+        eventLong > this.state.longitude + p ||
+        eventLong < this.state.longitude - p
+      ) {
+        return false;
+      }
+
+      return true;
+    });
   }
 
   render() {
@@ -63,37 +130,27 @@ export default class HomeScreen extends React.Component {
       listView = <ActivityIndicator size="large" style={{ paddingTop: 150 }} />;
     } else {
       listView = (
-        <EventList events={this.state.events} onPress={this.rowSelect} />
+        <EventList events={this.eventsFiltered()} onPress={this.rowSelect} />
       );
     }
 
     return (
       <Container>
-
-        <Header searchBar rounded>
-          <Left>
-            <Button transparent>
-              <Icon
-                ios="ios-menu"
-                android="md-menu"
-                onPress={() => {
-                  this.drawer._root.open();
-                }}
-              />
-            </Button>
-          </Left>
-
+        <Header>
+          <Left />
           <Body>
-            <Title>Near Me</Title>
+            <Title>Within {mileRadius} miles</Title>
           </Body>
-
           <Right>
             <Button transparent>
               <Icon ios="ios-search" android="md-search" />
             </Button>
           </Right>
-
         </Header>
+        <Text>
+          Latitude:{this.state.latitude}, Longitude: {this.state.longitude}
+        </Text>
+        <SearchView />
         {listView}
       </Container>
     );
