@@ -8,7 +8,8 @@ import {
   Button,
   Left,
   Right,
-  Body
+  Body,
+  Text
 } from "native-base";
 import { StackNavigator } from "react-navigation";
 import EventList from "./EventList";
@@ -22,7 +23,8 @@ class HomeScreen extends React.Component {
 
     this.state = {
       isLoading: true,
-      events: []
+      events: [],
+      error: null
     };
 
     this.rowSelect = this.rowSelect.bind(this);
@@ -38,6 +40,10 @@ class HomeScreen extends React.Component {
         });
       })
       .catch(error => {
+        this.setState({
+          isLoading: false,
+          error: error
+        });
         console.error(error);
       });
   }
@@ -49,6 +55,9 @@ class HomeScreen extends React.Component {
 
   render() {
     let listView;
+    if (this.state.error) {
+      listView = <Text>Error loading event data</Text>;
+    }
     if (this.state.isLoading) {
       listView = <ActivityIndicator size="large" style={{ paddingTop: 150 }} />;
     } else {
@@ -66,7 +75,7 @@ class HomeScreen extends React.Component {
             </Button>
           </Left>
           <Body>
-            <Title>Near Me</Title>
+            <Title>Upcoming Events</Title>
           </Body>
           <Right />
         </Header>

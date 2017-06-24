@@ -37,7 +37,7 @@ export default class EventList extends Component {
               <Body>
                 <Text>{item.title}</Text>
                 <Text note>
-                  {item.startdate} @ {item.starttime} - {item.endtime}
+                  {item.startdate} {item.starttime}
                 </Text>
                 <Text note>{item.location}</Text>
               </Body>

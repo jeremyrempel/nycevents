@@ -54,14 +54,34 @@ export default class EventViewScreen extends React.Component {
           </ListItem>
           <ListItem>
             <Body>
-              <Text note>Date, Time</Text>
-              <Text>{event.startdate} @ {event.starttime}y</Text>
+              <Text note>Location</Text>
+              <Text>{event.location}</Text>
+            </Body>
+          </ListItem>
+
+          {event.parkids.length > 0 &&
+            <ListItem>
+              <Body>
+                <Text note>Borough</Text>
+                <Text>
+                  {this.getBorough(event.parkids)}
+                </Text>
+              </Body>
+            </ListItem>}
+          <ListItem>
+            <Body>
+              <Text note>Date</Text>
+              <Text>
+                {event.startdate}
+              </Text>
             </Body>
           </ListItem>
           <ListItem>
             <Body>
-              <Text note>Address</Text>
-              <Text>Check website for event details</Text>
+              <Text note>Time</Text>
+              <Text>
+                {event.starttime}-{event.endtime}
+              </Text>
             </Body>
           </ListItem>
           <ListItem onPress={() => Linking.openURL(event.link)}>
@@ -71,22 +91,45 @@ export default class EventViewScreen extends React.Component {
             </Body>
             <Right><Icon name="arrow-forward" /></Right>
           </ListItem>
-          <ListItem>
-            <Body>
-              <Text note>Contact Phone</Text>
-              <Text>{event.contact_phone}</Text>
-            </Body>
-          </ListItem>
+          {event.contact_phone &&
+            <ListItem>
+              <Body>
+                <Text note>Contact Phone</Text>
+                <Text>{event.contact_phone}</Text>
+              </Body>
+            </ListItem>}
           <ListItem>
             <Body>
               <Text note>Categories</Text>
               <Text>{event.categories}</Text>
             </Body>
           </ListItem>
-
+          <ListItem>
+            <Body>
+              <Text note>Coordinates</Text>
+              <Text>{event.coordinates}</Text>
+            </Body>
+          </ListItem>
         </Content>
       </Container>
     );
+  }
+
+  getBorough(parkids) {
+    let bCode = parkids.substring(0, 1);
+
+    switch (bCode) {
+      case "B":
+        return "Brooklyn";
+      case "M":
+        return "Manhattan";
+      case "X":
+        return "Bronx";
+      case "Q":
+        return "Queens";
+      case "R":
+        return "Staten Island";
+    }
   }
 
   showImage(remoteImageUrl) {
@@ -95,8 +138,9 @@ export default class EventViewScreen extends React.Component {
         <Image
           style={{
             width: 400,
-            height: 300,
+            height: 200,
             flex: 1,
+            resizeMode: "cover",
             justifyContent: "center",
             alignItems: "center"
           }}
