@@ -9,7 +9,9 @@ import {
   Left,
   Right,
   Body,
-  Text
+  Text,
+  Item,
+  Input
 } from "native-base";
 import { StackNavigator } from "react-navigation";
 import EventList from "./EventList";
@@ -42,7 +44,8 @@ class HomeScreen extends React.Component {
       .catch(error => {
         this.setState({
           isLoading: false,
-          error: error
+          error: error,
+          text: null
         });
         console.error(error);
       });
@@ -68,16 +71,18 @@ class HomeScreen extends React.Component {
 
     return (
       <Container>
-        <Header>
-          <Left>
-            <Button transparent>
-              <Icon ios="ios-menu" android="md-menu" />
-            </Button>
-          </Left>
-          <Body>
-            <Title>Upcoming Events</Title>
-          </Body>
-          <Right />
+        <Header searchBar rounded>
+          <Button transparent>
+            <Icon ios="ios-menu" android="md-menu" />
+          </Button>
+
+          <Item style={{ flex: 1, marginLeft: 25 }}>
+            <Icon name="ios-search" />
+            <Input
+              placeholder="Search"
+              onChangeText={text => this.setState({ text })}
+            />
+          </Item>
         </Header>
         {listView}
       </Container>
