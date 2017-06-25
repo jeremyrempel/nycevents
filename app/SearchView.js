@@ -37,7 +37,7 @@ export default class EventList extends Component {
             <Icon name="ios-return-right" />
           </Left>
           <Body>
-            <Text>Distance (miles)</Text>
+            <Text>Search Radius (miles)</Text>
           </Body>
           <Right>
             <Item underline>
