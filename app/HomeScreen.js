@@ -32,7 +32,9 @@ export default class HomeScreen extends React.Component {
       latitude: null,
       longitude: null,
       searchVisible: false,
-      searchText: null
+      searchText: null,
+      searchLimitGeo: true,
+      searchLimitDistance: mileRadius
     };
 
     this.rowSelect = this.rowSelect.bind(this);
@@ -178,6 +180,8 @@ export default class HomeScreen extends React.Component {
           <SearchView
             latitude={this.state.latitude}
             longitude={this.state.longitude}
+            searchLimitGeo={this.state.searchLimitGeo}
+            searchLimitDistance={this.state.searchLimitDistance}
           />}
         {listView}
       </Container>

@@ -29,26 +29,27 @@ export default class EventList extends Component {
             <Text>Limit to events close to me</Text>
           </Body>
           <Right>
-            <Switch value={true} />
+            <Switch value={this.props.searchLimitGeo} />
           </Right>
         </ListItem>
-        <ListItem>
-          <Left>
-            <Icon name="ios-return-right" />
-          </Left>
-          <Body>
-            <Text>Search Radius (miles)</Text>
-          </Body>
-          <Right>
-            <Item underline>
-              <Input
-                placeholder="Regular Textbox"
-                value="3"
-                style={{ height: 30 }}
-              />
-            </Item>
-          </Right>
-        </ListItem>
+        {this.props.searchLimitGeo &&
+          <ListItem>
+            <Left>
+              <Icon name="ios-return-right" />
+            </Left>
+            <Body>
+              <Text>Search Radius (miles)</Text>
+            </Body>
+            <Right>
+              <Item underline>
+                <Input
+                  placeholder="Regular Textbox"
+                  value={String(this.props.searchLimitDistance)}
+                  style={{ height: 30 }}
+                />
+              </Item>
+            </Right>
+          </ListItem>}
         <ListItem icon>
           <Left>
             <Icon name="ios-funnel-outline" />
