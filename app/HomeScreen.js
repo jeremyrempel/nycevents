@@ -31,7 +31,7 @@ export default class HomeScreen extends React.Component {
       error: null,
       latitude: null,
       longitude: null,
-      searchVisibile: false,
+      searchVisible: false,
       searchText: null
     };
 
@@ -162,11 +162,11 @@ export default class HomeScreen extends React.Component {
           <Right>
             <Button transparent>
               <Icon
-                ios={this.state.searchVisibile ? "ios-arrow-down" : "ios-more"}
+                ios={this.state.searchVisible ? "ios-arrow-down" : "ios-more"}
                 android="md-more"
                 onPress={() => {
                   this.setState({
-                    searchVisibile: !this.state.searchVisibile
+                    searchVisible: !this.state.searchVisible
                   });
                 }}
               />
@@ -174,7 +174,7 @@ export default class HomeScreen extends React.Component {
           </Right>
         </Header>
 
-        {this.state.searchVisibile &&
+        {this.state.searchVisible &&
           <SearchView
             latitude={this.state.latitude}
             longitude={this.state.longitude}
