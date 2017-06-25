@@ -8,10 +8,10 @@ import {
   Icon,
   Button,
   Text,
-  Left,
   Right,
   Body,
-  Title
+  Item,
+  Input
 } from "native-base";
 import EventList from "./EventList";
 import SearchView from "./SearchView";
@@ -30,7 +30,8 @@ export default class HomeScreen extends React.Component {
       events: [],
       error: null,
       latitude: null,
-      longitude: null
+      longitude: null,
+      searchVisibile: false
     };
 
     this.rowSelect = this.rowSelect.bind(this);
@@ -137,20 +138,32 @@ export default class HomeScreen extends React.Component {
     return (
       <Container>
         <Header>
-          <Left />
           <Body>
-            <Title>Within {mileRadius} miles</Title>
+            <Item>
+              <Icon name="ios-search" />
+              <Input placeholder="Search" />
+            </Item>
           </Body>
           <Right>
             <Button transparent>
-              <Icon ios="ios-search" android="md-search" />
+              <Icon
+                ios={this.state.searchVisibile ? "ios-arrow-down" : "ios-more"}
+                android="md-more"
+                onPress={() => {
+                  this.setState({
+                    searchVisibile: !this.state.searchVisibile
+                  });
+                }}
+              />
             </Button>
           </Right>
         </Header>
-        <Text>
-          Latitude:{this.state.latitude}, Longitude: {this.state.longitude}
-        </Text>
-        <SearchView />
+
+        {this.state.searchVisibile &&
+          <SearchView
+            latitude={this.state.latitude}
+            longitude={this.state.longitude}
+          />}
         {listView}
       </Container>
     );
