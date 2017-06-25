@@ -3,7 +3,7 @@
 /**
  * Created by jrempel on 6/14/17.
  */
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import {
   Separator,
   Content,
@@ -16,7 +16,7 @@ import {
   Icon
 } from "native-base";
 
-export default class EventList extends Component {
+export default class EventList extends PureComponent {
   dates = [];
 
   render() {
