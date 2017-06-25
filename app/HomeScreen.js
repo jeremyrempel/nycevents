@@ -31,7 +31,8 @@ export default class HomeScreen extends React.Component {
       error: null,
       latitude: null,
       longitude: null,
-      searchVisibile: false
+      searchVisibile: false,
+      searchText: null
     };
 
     this.rowSelect = this.rowSelect.bind(this);
@@ -82,6 +83,7 @@ export default class HomeScreen extends React.Component {
         console.error(error);
       });
 
+    // get current location
     navigator.geolocation.getCurrentPosition(
       position => {
         this.setState({
@@ -118,7 +120,16 @@ export default class HomeScreen extends React.Component {
         return false;
       }
 
-      return true;
+      // text search
+      if (!this.state.searchText) return true;
+
+      const st = this.state.searchText.toUpperCase();
+
+      return (
+        e.title.toUpperCase().includes(st) ||
+        e.location.toUpperCase().includes(st) ||
+        e.startdate.toUpperCase().includes(st)
+      );
     });
   }
 
@@ -141,7 +152,11 @@ export default class HomeScreen extends React.Component {
           <Body>
             <Item>
               <Icon name="ios-search" />
-              <Input placeholder="Search" />
+              <Input
+                placeholder="Search"
+                value={this.state.searchText}
+                onChangeText={searchText => this.setState({ searchText })}
+              />
             </Item>
           </Body>
           <Right>
