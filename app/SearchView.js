@@ -1,16 +1,9 @@
 "use strict";
 
 import React, { Component } from "react";
-import { TextInput } from "react-native";
 import {
-  Container,
-  Content,
-  Header,
   Icon,
-  Form,
   List,
-  Button,
-  CheckBox,
   ListItem,
   Switch,
   Input,
@@ -18,9 +11,7 @@ import {
   Text,
   Left,
   Right,
-  Body,
-  Title,
-  Label
+  Body
 } from "native-base";
 
 export default class EventList extends Component {
@@ -35,7 +26,7 @@ export default class EventList extends Component {
             <Icon name="ios-compass-outline" />
           </Left>
           <Body>
-            <Text>Only show events close to me</Text>
+            <Text>Limit to events close to me</Text>
           </Body>
           <Right>
             <Switch value={true} />
