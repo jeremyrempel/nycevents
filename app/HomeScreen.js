@@ -1,7 +1,7 @@
 "use strict";
 
 import React from "react";
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, Platform } from "react-native";
 import {
   Container,
   Header,
@@ -150,28 +150,33 @@ export default class HomeScreen extends React.Component {
 
     return (
       <Container>
-        <Header>
-          <Body>
-            <Item>
-              <Icon name="ios-search" />
-              <Input
-                placeholder="Search"
-                value={this.state.searchText}
-                onChangeText={searchText => this.setState({ searchText })}
-              />
-            </Item>
-          </Body>
+        <Header searchBar rounded>
+          <Item>
+            <Icon name="ios-search" />
+            <Input
+              placeholder="Search"
+              onChangeText={searchText => this.setState({ searchText })}
+            />
+          </Item>
+
           <Right>
-            <Button transparent>
-              <Icon
-                ios={this.state.searchVisible ? "ios-arrow-down" : "ios-more"}
-                android="md-more"
-                onPress={() => {
-                  this.setState({
-                    searchVisible: !this.state.searchVisible
-                  });
-                }}
-              />
+            <Button
+              transparent
+              onPress={() => {
+                this.setState({
+                  searchVisible: !this.state.searchVisible
+                });
+              }}
+            >
+              {Platform.OS === "ios"
+                ? <Text>{this.state.searchVisible ? "Less" : "More"}</Text>
+                : <Icon
+                    name={
+                      this.state.searchVisible
+                        ? "md-arrow-round-up"
+                        : "md-arrow-round-down"
+                    }
+                  />}
             </Button>
           </Right>
         </Header>
