@@ -21,7 +21,6 @@
     },
     "globals": {
       "fetch": false,
-      "console": false,
       "require": false,
       "navigator": false
     }
