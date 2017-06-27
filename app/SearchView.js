@@ -5,7 +5,7 @@ import {
   Icon,
   List,
   ListItem,
-  Switch,
+  Button,
   Input,
   Item,
   Text,
@@ -16,21 +16,27 @@ import {
 
 export default class EventList extends Component {
   render() {
+    //const buttonState =  ? "bordered" : "outline";
+
     return (
       <List>
-        <ListItem itemHeader first>
-          <Text>SEARCH OPTIONS</Text>
-        </ListItem>
-        <ListItem icon>
-          <Left>
-            <Icon name="ios-compass-outline" />
-          </Left>
+        <ListItem>
           <Body>
-            <Text>Limit to events close to me</Text>
+            <Text>Search using keyword, date or location</Text>
           </Body>
-          <Right>
-            <Switch value={this.props.searchLimitGeo} />
-          </Right>
+        </ListItem>
+        <ListItem>
+          <Body>
+            <Button
+              iconLeft
+              bordered={!this.props.searchLimitGeo}
+              onPress={() => this.props.toggleSearchLimitGeo()}
+            >
+              <Icon name="ios-compass-outline" />
+              <Text>Only show events near me</Text>
+            </Button>
+
+          </Body>
         </ListItem>
         {this.props.searchLimitGeo &&
           <ListItem>
@@ -38,18 +44,20 @@ export default class EventList extends Component {
               <Icon name="ios-return-right" />
             </Left>
             <Body>
-              <Text>Search Radius (miles)</Text>
-            </Body>
-            <Right>
+              <Text>Distance (miles)</Text>
+
               <Item underline>
                 <Input
-                  placeholder="Regular Textbox"
+                  onChangeText={t =>
+                    this.props.onTextChangeSearchLimitDistance(t)}
                   value={String(this.props.searchLimitDistance)}
-                  style={{ height: 30 }}
+                  style={{ height: 40, width: 100 }}
                 />
               </Item>
-            </Right>
+            </Body>
           </ListItem>}
+
+        {/*
         <ListItem icon>
           <Left>
             <Icon name="ios-funnel-outline" />
@@ -73,6 +81,15 @@ export default class EventList extends Component {
             <Text>ALL</Text>
             <Icon name="arrow-forward" />
           </Right>
+        </ListItem>
+        */}
+        <ListItem>
+          <Body>
+            <Text note>
+              Displaying {this.props.currentEventsNumber} of{" "}
+              {this.props.totalEventsNumber} events
+            </Text>
+          </Body>
         </ListItem>
       </List>
     );

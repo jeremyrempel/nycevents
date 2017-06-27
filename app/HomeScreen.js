@@ -9,15 +9,15 @@ import {
   Button,
   Text,
   Right,
-  Body,
   Item,
   Input
 } from "native-base";
 import EventList from "./EventList";
 import SearchView from "./SearchView";
+import { distance } from "./Distance";
 
 const dataSource = "https://www.nycgovparks.org/xml/events_300_rss.json";
-const mileRadius = 3;
+const mileRadius = 6;
 
 export default class HomeScreen extends React.Component {
   static navigationOptions = { header: null };
@@ -33,11 +33,20 @@ export default class HomeScreen extends React.Component {
       longitude: null,
       searchVisible: false,
       searchText: null,
-      searchLimitGeo: true,
+      searchLimitGeo: false,
       searchLimitDistance: mileRadius
     };
 
     this.rowSelect = this.rowSelect.bind(this);
+    this.toggleSearchLimitGeo = this.toggleSearchLimitGeo.bind(this);
+    this.onTextChangeSearchLimitDistance = this.onTextChangeSearchLimitDistance.bind(
+      this
+    );
+
+    // if geo limiter, get the coordinates
+    if (this.state.toggleSearchLimitGeo) {
+      this.updateGeo();
+    }
   }
 
   componentDidMount() {
@@ -51,24 +60,28 @@ export default class HomeScreen extends React.Component {
           const dateStrSplit = e.startdate.split("-");
 
           // https://stackoverflow.com/questions/141348/what-is-the-best-way-to-parse-a-time-into-a-date-object-from-user-input-in-javas
-          const time = e.starttime.match(/(\d+)(?::(\d\d))?\s*(p?)/);
-          const hours = parseInt(
-            parseInt(time[1]) + (parseInt(time[1]) < 12 && time[3] ? 12 : 0)
-          );
-          const minutes = parseInt(time[2]) || 0;
+          if (e.endtime) {
+            const time = e.endtime.match(/(\d+)(?::(\d\d))?\s*(p?)/);
+            const hours = parseInt(
+              parseInt(time[1]) + (parseInt(time[1]) < 12 && time[3] ? 12 : 0)
+            );
+            const minutes = parseInt(time[2]) || 0;
 
-          // year, month, date, hour, minute, second, millisecond
-          const dateStart = new Date(
-            dateStrSplit[0],
-            dateStrSplit[1] - 1,
-            dateStrSplit[2],
-            hours,
-            minutes,
-            0,
-            0
-          );
+            // year, month, date, hour, minute, second, millisecond
+            const dateStart = new Date(
+              dateStrSplit[0],
+              dateStrSplit[1] - 1,
+              dateStrSplit[2],
+              hours,
+              minutes,
+              0,
+              0
+            );
 
-          return dateStart.getTime() >= dateNow;
+            return dateStart.getTime() >= dateNow;
+          } else {
+            return true;
+          }
         });
 
         this.setState({
@@ -82,9 +95,31 @@ export default class HomeScreen extends React.Component {
           error: error,
           text: null
         });
-        console.error(error);
       });
+  }
 
+  // toggle the searchLimitGeo state mutate
+  toggleSearchLimitGeo() {
+    const newSearchLimitGeo = !this.state.searchLimitGeo;
+    if (newSearchLimitGeo) {
+      this.updateGeo();
+    }
+
+    // mutate the state
+    this.setState({
+      searchLimitGeo: newSearchLimitGeo
+    });
+  }
+
+  onTextChangeSearchLimitDistance(searchLimitDistance) {
+    // mutate the state
+    this.setState({
+      searchLimitDistance: searchLimitDistance
+    });
+  }
+
+  // update geo and notify state mutation
+  updateGeo() {
     // get current location
     navigator.geolocation.getCurrentPosition(
       position => {
@@ -104,34 +139,39 @@ export default class HomeScreen extends React.Component {
     navigate("EventView", { event: selectedEvent });
   }
 
-  eventsFiltered() {
+  getEventsFiltered() {
     return this.state.events.filter(e => {
-      // filter on current location
-      // 0.01 degrees = 1.1132 km = 0.69 miles
-      const p = 0.691710411 * 0.01 * mileRadius;
-      const eventCoord = e.coordinates.split(",");
-      const eventLat = Number(eventCoord[0]);
-      const eventLong = Number(eventCoord[1]);
-
+      // geo filter
       if (
-        eventLat > this.state.latitude + p ||
-        eventLat < this.state.latitude - p ||
-        eventLong > this.state.longitude + p ||
-        eventLong < this.state.longitude - p
+        this.state.searchLimitGeo &&
+        this.state.latitude &&
+        this.state.longitude
       ) {
-        return false;
+        // filter on current location
+        const eventCoord = e.coordinates.split(",");
+        if (
+          distance(
+            Number(eventCoord[0]),
+            Number(eventCoord[1]),
+            this.state.latitude,
+            this.state.longitude
+          ) > this.state.searchLimitDistance
+        ) {
+          return false;
+        }
       }
 
-      // text search
-      if (!this.state.searchText) return true;
+      // text filter
+      if (this.state.searchText) {
+        const st = this.state.searchText.toUpperCase();
+        return (
+          e.title.toUpperCase().includes(st) ||
+          e.location.toUpperCase().includes(st) ||
+          e.startdate.toUpperCase().includes(st)
+        );
+      }
 
-      const st = this.state.searchText.toUpperCase();
-
-      return (
-        e.title.toUpperCase().includes(st) ||
-        e.location.toUpperCase().includes(st) ||
-        e.startdate.toUpperCase().includes(st)
-      );
+      return true;
     });
   }
 
@@ -144,7 +184,7 @@ export default class HomeScreen extends React.Component {
       listView = <ActivityIndicator size="large" style={{ paddingTop: 150 }} />;
     } else {
       listView = (
-        <EventList events={this.eventsFiltered()} onPress={this.rowSelect} />
+        <EventList events={this.getEventsFiltered()} onPress={this.rowSelect} />
       );
     }
 
@@ -187,6 +227,12 @@ export default class HomeScreen extends React.Component {
             longitude={this.state.longitude}
             searchLimitGeo={this.state.searchLimitGeo}
             searchLimitDistance={this.state.searchLimitDistance}
+            onTextChangeSearchLimitDistance={
+              this.onTextChangeSearchLimitDistance
+            }
+            toggleSearchLimitGeo={this.toggleSearchLimitGeo}
+            currentEventsNumber={this.getEventsFiltered().length}
+            totalEventsNumber={this.state.events.length}
           />}
         {listView}
       </Container>
