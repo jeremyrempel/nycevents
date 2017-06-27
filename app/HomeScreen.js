@@ -129,8 +129,7 @@ export default class HomeScreen extends React.Component {
           error: null
         });
       },
-      error => this.setState({ error: error.message }),
-      { enableHighAccuracy: true, timeout: 20000, maximumAge: 60000 }
+      error => this.setState({ error: error.message })
     );
   }
 
