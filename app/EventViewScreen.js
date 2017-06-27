@@ -82,7 +82,7 @@ export default class EventViewScreen extends React.Component {
             <Body>
               <Text note>Time</Text>
               <Text>
-                {event.starttime}-{event.endtime}
+                {event.starttime} - {event.endtime}
               </Text>
             </Body>
           </ListItem>
