@@ -10,6 +10,8 @@ import {
   Item,
   Text,
   Left,
+  Right,
+  Switch,
   Body
 } from "native-base";
 
@@ -24,18 +26,19 @@ export default class EventList extends Component {
             <Text>Search using keyword, date or location</Text>
           </Body>
         </ListItem>
-        <ListItem>
+        <ListItem icon>
+          <Left>
+            <Icon name="ios-compass-outline" />
+          </Left>
           <Body>
-            <Button
-              iconLeft
-              bordered={!this.props.searchLimitGeo}
-              onPress={() => this.props.toggleSearchLimitGeo()}
-            >
-              <Icon name="ios-compass-outline" />
-              <Text>Only show events near me</Text>
-            </Button>
-
+            <Text>Only show events near me</Text>
           </Body>
+          <Right>
+            <Switch
+              value={this.props.searchLimitGeo}
+              onValueChange={() => this.props.toggleSearchLimitGeo()}
+            />
+          </Right>
         </ListItem>
         {this.props.searchLimitGeo &&
           <ListItem>
