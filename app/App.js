@@ -1,3 +1,5 @@
+"use strict";
+
 import { AppRegistry } from "react-native";
 import { Header } from "native-base";
 import { StackNavigator } from "react-navigation";
