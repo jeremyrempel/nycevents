@@ -10,7 +10,6 @@ import {
   Item,
   Text,
   Left,
-  Right,
   Body
 } from "native-base";
 
