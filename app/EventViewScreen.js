@@ -14,11 +14,12 @@ import {
   Header,
   Title,
   Body,
+  List,
   Right,
   Icon,
   H1
 } from "native-base";
-import { Linking, Image } from "react-native";
+import { Linking, Image, View } from "react-native";
 
 export default class EventViewScreen extends React.Component {
   static navigationOptions = { header: null };
@@ -42,76 +43,80 @@ export default class EventViewScreen extends React.Component {
         </Header>
         <Content style={{ backgroundColor: "white" }}>
           {this.showImage(event.image)}
-          <ListItem>
-            <H1>{event.title}</H1>
-          </ListItem>
-          <ListItem>
-            <Body>
-              <Text>
-                {event.description
-                  .replace("</p>", "\n")
-                  .replace(/<(?:.|\n)*?>/gm, "")}
-              </Text>
-            </Body>
-          </ListItem>
-          <ListItem>
-            <Body>
-              <Text note>Location</Text>
-              <Text>{event.location}</Text>
-            </Body>
-          </ListItem>
 
-          {event.parkids.length > 0 &&
+          <List>
+            <ListItem>
+              <H1>{event.title}</H1>
+            </ListItem>
             <ListItem>
               <Body>
-                <Text note>Borough</Text>
                 <Text>
-                  {this.getBorough(event.parkids)}
+                  {event.description
+                    .replace("</p>", "\n")
+                    .replace(/<(?:.|\n)*?>/gm, "")}
                 </Text>
               </Body>
-            </ListItem>}
-          <ListItem>
-            <Body>
-              <Text note>Date</Text>
-              <Text>
-                {event.startdate}
-              </Text>
-            </Body>
-          </ListItem>
-          <ListItem>
-            <Body>
-              <Text note>Time</Text>
-              <Text>
-                {event.starttime} - {event.endtime}
-              </Text>
-            </Body>
-          </ListItem>
-          <ListItem onPress={() => Linking.openURL(event.link)}>
-            <Body>
-              <Text note>Website</Text>
-              <Text style={{ color: "blue" }}>{event.link}</Text>
-            </Body>
-            <Right><Icon name="arrow-forward" /></Right>
-          </ListItem>
-          {event.contact_phone &&
+            </ListItem>
             <ListItem>
               <Body>
-                <Text note>Contact Phone</Text>
-                <Text>{event.contact_phone}</Text>
+                <Text note>Location</Text>
+                <Text>{event.location}</Text>
               </Body>
-            </ListItem>}
-          <ListItem>
-            <Body>
-              <Text note>Categories</Text>
-              <Text>{event.categories}</Text>
-            </Body>
-          </ListItem>
-          <ListItem>
-            <Body>
-              <Text note>Coordinates</Text>
-              <Text>{event.coordinates}</Text>
-            </Body>
-          </ListItem>
+            </ListItem>
+
+            {event.parkids.length > 0 &&
+              <ListItem>
+                <Body>
+                  <Text note>Borough</Text>
+                  <Text>
+                    {this.getBorough(event.parkids)}
+                  </Text>
+                </Body>
+              </ListItem>}
+            <ListItem>
+              <Body>
+                <Text note>Date</Text>
+                <Text>
+                  {event.startdate}
+                </Text>
+              </Body>
+            </ListItem>
+            <ListItem>
+              <Body>
+                <Text note>Time</Text>
+                <Text>
+                  {event.starttime} - {event.endtime}
+                </Text>
+              </Body>
+            </ListItem>
+            <ListItem onPress={() => Linking.openURL(event.link)}>
+              <Body>
+                <Text note>Website</Text>
+                <Text style={{ color: "blue" }}>{event.link}</Text>
+              </Body>
+              <Right><Icon name="arrow-forward" /></Right>
+            </ListItem>
+            {event.contact_phone &&
+              <ListItem>
+                <Body>
+                  <Text note>Contact Phone</Text>
+                  <Text>{event.contact_phone}</Text>
+                </Body>
+              </ListItem>}
+            <ListItem>
+              <Body>
+                <Text note>Categories</Text>
+                <Text>{event.categories}</Text>
+              </Body>
+            </ListItem>
+            <ListItem>
+              <Body>
+                <Text note>Coordinates</Text>
+                <Text>{event.coordinates}</Text>
+              </Body>
+            </ListItem>
+          </List>
+
         </Content>
       </Container>
     );
@@ -137,17 +142,21 @@ export default class EventViewScreen extends React.Component {
   showImage(remoteImageUrl) {
     if (remoteImageUrl.length > 0) {
       return (
-        <Image
+        <View
           style={{
-            width: 400,
-            height: 200,
             flex: 1,
-            resizeMode: "cover",
             justifyContent: "center",
             alignItems: "center"
           }}
-          source={{ uri: remoteImageUrl.replace("http", "https") }}
-        />
+        >
+          <Image
+            style={{
+              width: 400,
+              height: 200
+            }}
+            source={{ uri: remoteImageUrl.replace("http", "https") }}
+          />
+        </View>
       );
     }
   }
