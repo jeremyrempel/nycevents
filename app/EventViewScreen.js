@@ -19,7 +19,8 @@ import {
   Icon,
   H1
 } from "native-base";
-import { Linking, Image, View } from "react-native";
+import { Linking, Image, View, StyleSheet, Platform } from "react-native";
+import MapView from "react-native-maps";
 
 export default class EventViewScreen extends React.Component {
   static navigationOptions = { header: null };
@@ -57,11 +58,14 @@ export default class EventViewScreen extends React.Component {
                 </Text>
               </Body>
             </ListItem>
-            <ListItem>
+            <ListItem onPress={() => this.openGps(event.location)}>
               <Body>
                 <Text note>Location</Text>
-                <Text>{event.location}</Text>
+                <Text style={{ color: "blue" }}>
+                  {event.location}
+                </Text>
               </Body>
+              <Right><Icon name="arrow-forward" /></Right>
             </ListItem>
 
             {event.parkids.length > 0 &&
@@ -160,4 +164,29 @@ export default class EventViewScreen extends React.Component {
       );
     }
   }
+
+  openGps(location) {
+    const scheme = Platform.OS === "ios" ? "http://maps.apple.com/?q=" : "geo:";
+    const url = scheme + location;
+    this.openExternalApp(url);
+  }
+
+  openExternalApp(url) {
+    Linking.canOpenURL(url).then(supported => {
+      if (supported) {
+        Linking.openURL(url);
+      } else {
+        console.log("Don't know how to open URI: " + url);
+      }
+    });
+  }
 }
+
+const styles = StyleSheet.create({
+  map: {
+    ...StyleSheet.absoluteFillObject
+  },
+  link: {
+    color: "blue"
+  }
+});
