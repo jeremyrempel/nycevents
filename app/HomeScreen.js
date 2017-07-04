@@ -27,8 +27,8 @@ export default class HomeScreen extends React.Component {
     super();
 
     this.state = {
-      isLoading: true,
       events: [],
+      isLoading: true,
       error: null,
       latitude: null,
       longitude: null,
