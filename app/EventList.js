@@ -26,7 +26,6 @@ export default class EventList extends PureComponent {
         dataArray={this.props.events}
         renderRow={item =>
           <Content>
-
             {this.showHeader(item.startdate) &&
               <Separator bordered>
                 <Text>
@@ -37,11 +36,15 @@ export default class EventList extends PureComponent {
             <ListItem onPress={() => this.props.onPress(item)}>
               {this.showImage(item.image)}
               <Body>
-                <Text>{item.title}</Text>
+                <Text>
+                  {item.title}
+                </Text>
                 <Text note>
                   {item.startdate} {item.starttime}
                 </Text>
-                <Text note>{item.location}</Text>
+                <Text note>
+                  {item.location}
+                </Text>
               </Body>
               <Right>
                 <Icon name="arrow-forward" />
