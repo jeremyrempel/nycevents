@@ -64,7 +64,7 @@ export default class EventList extends PureComponent {
         />
       );
     } else {
-      return <Thumbnail large source={require("./img/park.png")} />;
+      return <Thumbnail large source={require("../img/park.png")} />;
     }
   }
 

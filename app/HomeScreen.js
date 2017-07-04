@@ -12,8 +12,8 @@ import {
   Item,
   Input
 } from "native-base";
-import EventList from "./EventList";
-import SearchView from "./SearchView";
+import EventList from "./components/EventList";
+import SearchView from "./components/SearchView";
 import { distance } from "./lib/Distance";
 import { fetchAndStore } from "./lib/FetchStore";
 
