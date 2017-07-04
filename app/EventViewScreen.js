@@ -127,14 +127,6 @@ export default class EventViewScreen extends React.Component {
                 </Text>
               </Body>
             </ListItem>
-            <ListItem>
-              <Body>
-                <Text note>Coordinates</Text>
-                <Text>
-                  {event.coordinates}
-                </Text>
-              </Body>
-            </ListItem>
           </List>
         </Content>
       </Container>
