@@ -38,7 +38,9 @@ export default class EventViewScreen extends React.Component {
             </Button>
           </Left>
           <Body>
-            <Title>{event.title}</Title>
+            <Title>
+              {event.title}
+            </Title>
           </Body>
           <Right />
         </Header>
@@ -47,7 +49,9 @@ export default class EventViewScreen extends React.Component {
 
           <List>
             <ListItem>
-              <H1>{event.title}</H1>
+              <H1>
+                {event.title}
+              </H1>
             </ListItem>
             <ListItem>
               <Body>
@@ -65,7 +69,9 @@ export default class EventViewScreen extends React.Component {
                   {event.location}
                 </Text>
               </Body>
-              <Right><Icon name="arrow-forward" /></Right>
+              <Right>
+                <Icon name="arrow-forward" />
+              </Right>
             </ListItem>
 
             {event.parkids.length > 0 &&
@@ -96,31 +102,40 @@ export default class EventViewScreen extends React.Component {
             <ListItem onPress={() => Linking.openURL(event.link)}>
               <Body>
                 <Text note>Website</Text>
-                <Text style={{ color: "blue" }}>{event.link}</Text>
+                <Text style={{ color: "blue" }}>
+                  {event.link}
+                </Text>
               </Body>
-              <Right><Icon name="arrow-forward" /></Right>
+              <Right>
+                <Icon name="arrow-forward" />
+              </Right>
             </ListItem>
             {event.contact_phone &&
               <ListItem>
                 <Body>
                   <Text note>Contact Phone</Text>
-                  <Text>{event.contact_phone}</Text>
+                  <Text>
+                    {event.contact_phone}
+                  </Text>
                 </Body>
               </ListItem>}
             <ListItem>
               <Body>
                 <Text note>Categories</Text>
-                <Text>{event.categories}</Text>
+                <Text>
+                  {event.categories}
+                </Text>
               </Body>
             </ListItem>
             <ListItem>
               <Body>
                 <Text note>Coordinates</Text>
-                <Text>{event.coordinates}</Text>
+                <Text>
+                  {event.coordinates}
+                </Text>
               </Body>
             </ListItem>
           </List>
-
         </Content>
       </Container>
     );
@@ -166,19 +181,28 @@ export default class EventViewScreen extends React.Component {
   }
 
   openGps(location) {
-    const scheme = Platform.OS === "ios" ? "http://maps.apple.com/?q=" : "geo:";
-    const url = scheme + location;
-    this.openExternalApp(url);
-  }
-
-  openExternalApp(url) {
-    Linking.canOpenURL(url).then(supported => {
-      if (supported) {
-        Linking.openURL(url);
-      } else {
-        console.log("Don't know how to open URI: " + url);
-      }
-    });
+    if (Platform.OS == "ios") {
+      const iosGMap =
+        "comgooglemaps-x-callback://?q=" +
+        location +
+        " New York" +
+        "&x-success=sourceapp://?resume=true" +
+        "&x-source=NYCEvents";
+      const iosAMap = "http://maps.apple.com/?q=" + location;
+      Linking.canOpenURL(iosGMap).then(supported => {
+        if (supported) {
+          Linking.openURL(iosGMap);
+        } else {
+          Linking.openURL(iosAMap);
+        }
+      });
+    } else {
+      const andGMap =
+        "https://www.google.com/maps/search/?api=1&query=" +
+        location +
+        " New York";
+      Linking.openURL(andGMap);
+    }
   }
 }
 
