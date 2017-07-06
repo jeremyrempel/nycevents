@@ -21,6 +21,7 @@ import {
 } from "native-base";
 import { Linking, Image, View, StyleSheet, Platform } from "react-native";
 import MapView from "react-native-maps";
+import { getLatLong } from "../lib/Util";
 
 export default class EventViewScreen extends React.Component {
   static navigationOptions = { header: null };
@@ -68,7 +69,10 @@ export default class EventViewScreen extends React.Component {
                 </Text>
               </Body>
             </ListItem>
-            <ListItem onPress={() => this.openGps(event.location)}>
+            <ListItem
+              onPress={() =>
+                this.openMap(getLatLong(event.coordinates), event.location)}
+            >
               <Body>
                 <Text note>Location</Text>
                 <Text style={{ color: "blue" }}>
@@ -178,22 +182,24 @@ export default class EventViewScreen extends React.Component {
     }
   }
 
-  openGps(location) {
+  openMap(coords, locationName) {
     if (Platform.OS == "ios") {
-      const iosGMap =
-        "comgooglemaps-x-callback://?q=" +
-        location +
-        " New York" +
-        "&x-success=sourceapp://?resume=true" +
-        "&x-source=NYCEvents";
-      const iosAMap = "http://maps.apple.com/?q=" + location;
-      Linking.canOpenURL(iosGMap).then(supported => {
-        if (supported) {
-          Linking.openURL(iosGMap);
-        } else {
-          Linking.openURL(iosAMap);
-        }
-      });
+      const iosAMap = `http://maps.apple.com/?dirflg=t&t=r&q=${locationName}&ll=${coords.latitude},${coords.longitude}`;
+      Linking.openURL(iosAMap);
+
+      // const iosGMap =
+      //   "comgooglemaps-x-callback://?q=" +
+      //   locationName +
+      //   " New York" +
+      //   "&x-success=sourceapp://?resume=true" +
+      //   "&x-source=NYCEvents";
+      //       Linking.canOpenURL(iosGMap).then(supported => {
+      //         if (supported) {
+      //           Linking.openURL(iosGMap);
+      //         } else {
+      //           Linking.openURL(iosAMap);
+      //         }
+      //       });
     } else {
       const andGMap =
         "https://www.google.com/maps/search/?api=1&query=" +
