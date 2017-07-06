@@ -12,8 +12,8 @@ import {
   Item,
   Input
 } from "native-base";
-import EventList from "./EventList";
-import SearchView from "./SearchView";
+import EventList from "./components/EventList";
+import SearchView from "./components/SearchView";
 import { distance } from "./lib/Distance";
 import { fetchAndStore } from "./lib/FetchStore";
 
@@ -27,15 +27,17 @@ export default class HomeScreen extends React.Component {
     super();
 
     this.state = {
-      isLoading: true,
       events: [],
+      isLoading: true,
       error: null,
+      searchVisible: false,
       latitude: null,
       longitude: null,
-      searchVisible: false,
-      searchText: null,
-      searchLimitGeo: false,
-      searchLimitDistance: mileRadius
+      filter: {
+        searchText: null,
+        limitGeo: false,
+        limitDistance: mileRadius
+      }
     };
 
     this.rowSelect = this.rowSelect.bind(this);
@@ -45,7 +47,7 @@ export default class HomeScreen extends React.Component {
     );
 
     // if geo limiter, get the coordinates
-    if (this.state.toggleSearchLimitGeo) {
+    if (this.state.filter.limitGeo) {
       this.updateGeo();
     }
   }
@@ -61,21 +63,27 @@ export default class HomeScreen extends React.Component {
 
   // toggle the searchLimitGeo state mutate
   toggleSearchLimitGeo() {
-    const newSearchLimitGeo = !this.state.searchLimitGeo;
+    const newSearchLimitGeo = !this.state.filter.limitGeo;
     if (newSearchLimitGeo) {
       this.updateGeo();
     }
 
     // mutate the state
+    // todo is there a better way to do this?
+    const newFilter = this.state.filter;
+    newFilter.limitGeo = newSearchLimitGeo;
     this.setState({
-      searchLimitGeo: newSearchLimitGeo
+      filter: newFilter
     });
   }
 
   onTextChangeSearchLimitDistance(searchLimitDistance) {
     // mutate the state
+
+    const newFilter = this.state.filter;
+    newFilter.limitDistance = searchLimitDistance;
     this.setState({
-      searchLimitDistance: searchLimitDistance
+      filter: newFilter
     });
   }
 
@@ -122,8 +130,8 @@ export default class HomeScreen extends React.Component {
       }
 
       // text filter
-      if (this.state.searchText) {
-        const st = this.state.searchText.toUpperCase();
+      if (this.state.filter.searchText) {
+        const st = this.state.filter.searchText.toUpperCase();
         return (
           e.title.toUpperCase().includes(st) ||
           e.location.toUpperCase().includes(st) ||
@@ -136,6 +144,8 @@ export default class HomeScreen extends React.Component {
   }
 
   render() {
+    const eventList = this.getEventsFiltered();
+
     let listView;
     if (this.state.error) {
       listView = <Text>Error loading event data</Text>;
@@ -143,9 +153,7 @@ export default class HomeScreen extends React.Component {
     if (this.state.isLoading) {
       listView = <ActivityIndicator size="large" style={{ paddingTop: 150 }} />;
     } else {
-      listView = (
-        <EventList events={this.getEventsFiltered()} onPress={this.rowSelect} />
-      );
+      listView = <EventList events={eventList} onPress={this.rowSelect} />;
     }
 
     return (
@@ -155,7 +163,11 @@ export default class HomeScreen extends React.Component {
             <Icon name="ios-search" />
             <Input
               placeholder="Search"
-              onChangeText={searchText => this.setState({ searchText })}
+              onChangeText={searchText => {
+                const newFilter = this.state.filter;
+                newFilter.searchText = searchText;
+                this.setState({ filter: newFilter });
+              }}
             />
           </Item>
 
@@ -185,15 +197,13 @@ export default class HomeScreen extends React.Component {
 
         {this.state.searchVisible &&
           <SearchView
-            latitude={this.state.latitude}
-            longitude={this.state.longitude}
-            searchLimitGeo={this.state.searchLimitGeo}
-            searchLimitDistance={this.state.searchLimitDistance}
+            searchLimitGeo={this.state.filter.limitGeo}
+            searchLimitDistance={this.state.filter.limitDistance}
             onTextChangeSearchLimitDistance={
               this.onTextChangeSearchLimitDistance
             }
             toggleSearchLimitGeo={this.toggleSearchLimitGeo}
-            currentEventsNumber={this.getEventsFiltered().length}
+            currentEventsNumber={eventList.length}
             totalEventsNumber={this.state.events.length}
           />}
         {listView}

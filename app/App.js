@@ -3,7 +3,7 @@
 import { AppRegistry } from "react-native";
 import { Header } from "native-base";
 import { StackNavigator } from "react-navigation";
-import EventViewScreen from "./EventViewScreen";
+import EventViewScreen from "./components/EventViewScreen";
 import HomeScreen from "./HomeScreen";
 
 const App = StackNavigator(
