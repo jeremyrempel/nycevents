@@ -12,7 +12,7 @@ import {
   Item,
   Input
 } from "native-base";
-import EventList from "./components/EventList";
+import VisibleEventList from "./containers/VisibleEventList";
 import SearchView from "./components/SearchView";
 import { distance } from "./lib/Distance";
 import { fetchAndStore } from "./lib/FetchStore";
@@ -28,7 +28,7 @@ export default class HomeScreen extends React.Component {
 
     this.state = {
       events: [],
-      isLoading: true,
+      isLoading: false,
       error: null,
       searchVisible: false,
       latitude: null,
@@ -52,14 +52,14 @@ export default class HomeScreen extends React.Component {
     }
   }
 
-  componentDidMount() {
-    fetchAndStore(dataSource, eventData => {
-      this.setState({
-        isLoading: false,
-        events: eventData
-      });
-    });
-  }
+  // componentDidMount() {
+  //   fetchAndStore(dataSource, eventData => {
+  //     this.setState({
+  //       isLoading: false,
+  //       events: eventData
+  //     });
+  //   });
+  // }
 
   // toggle the searchLimitGeo state mutate
   toggleSearchLimitGeo() {
@@ -153,7 +153,9 @@ export default class HomeScreen extends React.Component {
     if (this.state.isLoading) {
       listView = <ActivityIndicator size="large" style={{ paddingTop: 150 }} />;
     } else {
-      listView = <EventList events={eventList} onPress={this.rowSelect} />;
+      listView = (
+        <VisibleEventList events={eventList} onPress={this.rowSelect} />
+      );
     }
 
     return (
@@ -206,7 +208,7 @@ export default class HomeScreen extends React.Component {
             currentEventsNumber={eventList.length}
             totalEventsNumber={this.state.events.length}
           />}
-        {listView}
+        <VisibleEventList />
       </Container>
     );
   }

@@ -1,7 +1,15 @@
-import React from 'react'
-import { AppRegistry } from 'react-native'
-import App from './app/App';
+import React from "react";
+import { AppRegistry } from "react-native";
+import App from "./app/App";
+import { Provider } from "react-redux";
+import { createStore } from "redux";
+import eventApp from "./app/reducers";
 
-const NycEvents = () => <App/>
+let store = createStore(eventApp);
 
-AppRegistry.registerComponent('NycEvents', () => NycEvents)
+const NycEvents = () =>
+  <Provider store={store}>
+    <App />
+  </Provider>;
+
+AppRegistry.registerComponent("NycEvents", () => NycEvents);
