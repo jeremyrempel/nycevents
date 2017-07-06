@@ -57,7 +57,13 @@ export default class EventViewScreen extends React.Component {
               <Body>
                 <Text>
                   {event.description
-                    .replace("</p>", "\n")
+                    .replaceAll("</p>", "\n")
+                    .replaceAll("<li>", "-")
+                    .replaceAll("<p>", "")
+                    .replaceAll("</li>", "")
+                    .replaceAll("</ul>", "")
+                    .replaceAll("<ul>", "")
+                    .decodeHTML()
                     .replace(/<(?:.|\n)*?>/gm, "")}
                 </Text>
               </Body>
@@ -197,6 +203,26 @@ export default class EventViewScreen extends React.Component {
     }
   }
 }
+
+String.prototype.decodeHTML = function() {
+  var map = { gt: ">" /* , … */ };
+  return this.replace(/&(#(?:x[0-9a-f]+|\d+)|[a-z]+);?/gi, function($0, $1) {
+    if ($1[0] === "#") {
+      return String.fromCharCode(
+        $1[1].toLowerCase() === "x"
+          ? parseInt($1.substr(2), 16)
+          : parseInt($1.substr(1), 10)
+      );
+    } else {
+      return map.hasOwnProperty($1) ? map[$1] : $0;
+    }
+  });
+};
+
+String.prototype.replaceAll = function(search, replacement) {
+  var target = this;
+  return target.replace(new RegExp(search, "g"), replacement);
+};
 
 const styles = StyleSheet.create({
   map: {
