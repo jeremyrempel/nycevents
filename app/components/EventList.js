@@ -31,7 +31,7 @@ const EventList = props =>
             </Text>
           </Separator>}
 
-        <ListItem onPress={() => this.props.onPress(item)}>
+        <ListItem onPress={() => props.onPress(item)}>
           {showImage(item.image)}
           <Body>
             <Text>
