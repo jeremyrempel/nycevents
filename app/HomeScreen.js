@@ -197,8 +197,6 @@ export default class HomeScreen extends React.Component {
 
         {this.state.searchVisible &&
           <SearchView
-            latitude={this.state.latitude}
-            longitude={this.state.longitude}
             searchLimitGeo={this.state.filter.limitGeo}
             searchLimitDistance={this.state.filter.limitDistance}
             onTextChangeSearchLimitDistance={
