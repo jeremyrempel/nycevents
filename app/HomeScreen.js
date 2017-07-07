@@ -148,16 +148,6 @@ export default class HomeScreen extends React.Component {
   render() {
     const eventList = this.getEventsFiltered();
 
-    let listView;
-    if (this.state.error) {
-      listView = <Text>Error loading event data</Text>;
-    }
-    if (this.state.isLoading) {
-      listView = <ActivityIndicator size="large" style={{ paddingTop: 150 }} />;
-    } else {
-      listView = <EventList events={eventList} onPress={this.rowSelect} />;
-    }
-
     return (
       <Container>
         <Header searchBar rounded>
@@ -196,7 +186,6 @@ export default class HomeScreen extends React.Component {
             </Button>
           </Right>
         </Header>
-
         {this.state.searchVisible &&
           <SearchView
             searchLimitGeo={this.state.filter.limitGeo}
@@ -208,7 +197,11 @@ export default class HomeScreen extends React.Component {
             currentEventsNumber={eventList.length}
             totalEventsNumber={this.state.events.length}
           />}
-        {listView}
+        {this.state.error && <Text>Error loading event data</Text>}
+
+        {this.state.loading &&
+          <ActivityIndicator size="large" style={{ paddingTop: 150 }} />}
+        <EventList events={eventList} onPress={this.rowSelect} />
       </Container>
     );
   }
