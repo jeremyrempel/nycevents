@@ -112,7 +112,7 @@ export default class HomeScreen extends React.Component {
     return this.state.events.filter(e => {
       // geo filter
       if (
-        this.state.searchLimitGeo &&
+        this.state.filter.limitGeo &&
         this.state.latitude &&
         this.state.longitude
       ) {
@@ -125,7 +125,7 @@ export default class HomeScreen extends React.Component {
             eventCoord.longitude,
             this.state.latitude,
             this.state.longitude
-          ) > this.state.searchLimitDistance
+          ) > this.state.filter.limitDistance
         ) {
           return false;
         }

@@ -1,6 +1,4 @@
 export function getLatLong(coords) {
-  console.log(coords);
-
   const eventCoordSet = coords.split(";");
   const eventCoord = eventCoordSet[0].split(",");
 
