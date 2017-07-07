@@ -64,6 +64,9 @@ export default class EventViewScreen extends React.Component {
                     .replaceAll("</li>", "")
                     .replaceAll("</ul>", "")
                     .replaceAll("<ul>", "")
+                    .replaceAll("&ldquo;", '"')
+                    .replaceAll("&rdquo;", '"')
+                    .replaceAll("&rsquo;", "'")
                     .decodeHTML()
                     .replace(/<(?:.|\n)*?>/gm, "")}
                 </Text>
