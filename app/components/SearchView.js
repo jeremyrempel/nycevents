@@ -52,20 +52,19 @@ const SearchView = props =>
           </Item>
         </Body>
       </ListItem>}
-
+    <ListItem icon onPress={() => props.onSelectCategories()}>
+      <Left>
+        <Icon name="ios-funnel-outline" />
+      </Left>
+      <Body>
+        <Text>Categories</Text>
+      </Body>
+      <Right>
+        <Text>ALL</Text>
+        <Icon name="arrow-forward" />
+      </Right>
+    </ListItem>
     {/*
-        <ListItem icon>
-          <Left>
-            <Icon name="ios-funnel-outline" />
-          </Left>
-          <Body>
-            <Text>Categories</Text>
-          </Body>
-          <Right>
-            <Text>ALL</Text>
-            <Icon name="arrow-forward" />
-          </Right>
-        </ListItem>
         <ListItem icon>
           <Left>
             <Icon name="ios-funnel-outline" />

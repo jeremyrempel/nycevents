@@ -136,7 +136,7 @@ export default class EventViewScreen extends React.Component {
               <Body>
                 <Text note>Categories</Text>
                 <Text>
-                  {event.categories}
+                  {event.categories.join("\n")}
                 </Text>
               </Body>
             </ListItem>

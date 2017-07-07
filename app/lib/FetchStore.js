@@ -17,10 +17,12 @@ export async function fetchAndStore(url, onEventDataReady) {
       const response = await fetch(url);
       const allEvents = await response.json();
 
+      const allEventsFilteredCat = setupCategories(allEvents);
+
       // save to local storage
       await AsyncStorage.setItem(
         "@nycevents:events",
-        JSON.stringify(allEvents)
+        JSON.stringify(allEventsFilteredCat)
       );
 
       await AsyncStorage.setItem("@nycevents:lastfetch", JSON.stringify(now));
@@ -29,6 +31,7 @@ export async function fetchAndStore(url, onEventDataReady) {
     const allEvents = JSON.parse(
       await AsyncStorage.getItem("@nycevents:events")
     );
+
     const allEventsFiltered = futureEvents(allEvents);
     onEventDataReady(allEventsFiltered);
   } catch (e) {
@@ -37,7 +40,24 @@ export async function fetchAndStore(url, onEventDataReady) {
   }
 }
 
-export function futureEvents(allEvents) {
+function setupCategories(eventList) {
+  eventList.forEach(e => {
+    const catSplit = e.categories.split("|");
+
+    e.categories = [];
+
+    for (let i = 0; i < catSplit.length; i++) {
+      const cat = catSplit[i].trim();
+      if (cat) {
+        e.categories.push(cat);
+      }
+    }
+  });
+
+  return eventList;
+}
+
+function futureEvents(allEvents) {
   let dateNow = Date.now();
 
   // filter out any dates before now

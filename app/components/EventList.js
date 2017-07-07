@@ -43,6 +43,9 @@ const EventList = props =>
             <Text note>
               {item.location}
             </Text>
+            <Text note>
+              {item.categories.join(", ")}
+            </Text>
           </Body>
           <Right>
             <Icon name="arrow-forward" />

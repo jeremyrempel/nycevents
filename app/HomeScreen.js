@@ -37,11 +37,13 @@ export default class HomeScreen extends React.Component {
       filter: {
         searchText: null,
         limitGeo: false,
-        limitDistance: mileRadius
+        limitDistance: mileRadius,
+        categories: []
       }
     };
 
     this.rowSelect = this.rowSelect.bind(this);
+    this.selectCategories = this.selectCategories.bind(this);
     this.toggleSearchLimitGeo = this.toggleSearchLimitGeo.bind(this);
     this.onTextChangeSearchLimitDistance = this.onTextChangeSearchLimitDistance.bind(
       this
@@ -55,9 +57,21 @@ export default class HomeScreen extends React.Component {
 
   componentDidMount() {
     fetchAndStore(dataSource, eventData => {
+      const eventCatList = new Set();
+      eventData.forEach(e => {
+        e.categories.forEach(c => {
+          if (c) {
+            eventCatList.add(c);
+          }
+        });
+      });
+
       this.setState({
         isLoading: false,
-        events: eventData
+        events: eventData,
+        filter: {
+          categories: [...eventCatList]
+        }
       });
     });
   }
@@ -108,6 +122,31 @@ export default class HomeScreen extends React.Component {
     navigate("EventView", { event: selectedEvent });
   }
 
+  selectCategories() {
+    const { navigate } = this.props.navigation;
+
+    // find unique categories and if currently selected in state
+    const eventCatSet = new Set();
+    this.state.events.forEach(e => {
+      e.categories.forEach(c => {
+        if (c) {
+          eventCatSet.add(c);
+        }
+      });
+    });
+
+    const eventCatSetSorted = [...eventCatSet].sort();
+    let eventCatList = [];
+    eventCatSetSorted.forEach(i => {
+      eventCatList.push({
+        category: i,
+        selected: this.state.filter.categories.includes(i)
+      });
+    });
+
+    navigate("CategorySelect", { categories: eventCatList });
+  }
+
   getEventsFiltered() {
     return this.state.events.filter(e => {
       // geo filter
@@ -131,6 +170,20 @@ export default class HomeScreen extends React.Component {
         }
       }
 
+      // category filter
+      if (e.categories.length > 0) {
+        let isCat = false;
+        e.categories.forEach(c => {
+          if (this.state.filter.categories.includes(c)) {
+            isCat = true;
+          }
+        });
+
+        if (!isCat) {
+          return false;
+        }
+      }
+
       // text filter
       if (this.state.filter.searchText) {
         const st = this.state.filter.searchText.toUpperCase();
@@ -149,7 +202,7 @@ export default class HomeScreen extends React.Component {
     const eventList = this.getEventsFiltered();
 
     return (
-      <Container>
+      <Container style={{ backgroundColor: "white" }}>
         <Header searchBar rounded>
           <Item>
             <Icon name="ios-search" />
@@ -196,11 +249,13 @@ export default class HomeScreen extends React.Component {
             toggleSearchLimitGeo={this.toggleSearchLimitGeo}
             currentEventsNumber={eventList.length}
             totalEventsNumber={this.state.events.length}
+            onSelectCategories={this.selectCategories}
           />}
         {this.state.error && <Text>Error loading event data</Text>}
 
-        {this.state.loading &&
+        {this.state.isLoading &&
           <ActivityIndicator size="large" style={{ paddingTop: 150 }} />}
+
         <EventList events={eventList} onPress={this.rowSelect} />
       </Container>
     );
