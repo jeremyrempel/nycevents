@@ -1,10 +1,38 @@
+import { AsyncStorage } from "react-native";
+
 export async function fetchAndStore(url, onEventDataReady) {
   try {
-    const response = await fetch(url);
-    const allEvents = await response.json();
+    let now = Date.now();
+    // 24 hrs ago
+    let yesterday = now - 3.6e6 * 24;
 
-    onEventDataReady(futureEvents(allEvents));
+    let lastFetch = JSON.parse(
+      await AsyncStorage.getItem("@nycevents:lastfetch")
+    );
+    lastFetch = lastFetch ? lastFetch : 0;
+
+    if (lastFetch < yesterday) {
+      console.log("getting events from network");
+
+      const response = await fetch(url);
+      const allEvents = await response.json();
+
+      // save to local storage
+      await AsyncStorage.setItem(
+        "@nycevents:events",
+        JSON.stringify(allEvents)
+      );
+
+      await AsyncStorage.setItem("@nycevents:lastfetch", JSON.stringify(now));
+    }
+
+    const allEvents = JSON.parse(
+      await AsyncStorage.getItem("@nycevents:events")
+    );
+    const allEventsFiltered = futureEvents(allEvents);
+    onEventDataReady(allEventsFiltered);
   } catch (e) {
+    console.error(e);
     return e;
   }
 }
