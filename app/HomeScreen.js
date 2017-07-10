@@ -48,6 +48,7 @@ export default class HomeScreen extends React.Component {
     this.onTextChangeSearchLimitDistance = this.onTextChangeSearchLimitDistance.bind(
       this
     );
+    this.onToggleCategory = this.onToggleCategory.bind(this);
 
     // if geo limiter, get the coordinates
     if (this.state.filter.limitGeo) {
@@ -144,7 +145,24 @@ export default class HomeScreen extends React.Component {
       });
     });
 
-    navigate("CategorySelect", { categories: eventCatList });
+    navigate("CategorySelect", {
+      categories: eventCatList,
+      onToggleCategory: this.onToggleCategory
+    });
+  }
+
+  onToggleCategory(c) {
+    let newFilter = this.state.filter;
+    const index = newFilter.categories.indexOf(c);
+    if (index > -1) {
+      newFilter.categories.splice(index, 1);
+    } else {
+      newFilter.categories.push(c);
+    }
+
+    this.setState({
+      filter: newFilter
+    });
   }
 
   getEventsFiltered() {

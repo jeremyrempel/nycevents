@@ -21,9 +21,29 @@ import {
 export default class CategorySelect extends React.Component {
   static navigationOptions = { header: null };
 
+  onToggleCategoryLocal(catToggle) {
+    const { setParams } = this.props.navigation;
+    const { onToggleCategory } = this.props.navigation.state.params;
+    const { categories } = this.props.navigation.state.params;
+
+    let newCategory = categories.map(c => {
+      return {
+        category: c.category,
+        selected: c.category == catToggle ? !c.selected : c.selected
+      };
+    });
+
+    // set local params
+    setParams({ categories: newCategory });
+
+    // update global state
+    onToggleCategory(catToggle);
+  }
+
   render() {
     const { goBack } = this.props.navigation;
     const { categories } = this.props.navigation.state.params;
+
     return (
       <Container>
         <Header>
@@ -47,8 +67,11 @@ export default class CategorySelect extends React.Component {
           <List
             dataArray={categories}
             renderRow={c =>
-              <ListItem>
-                <CheckBox checked={c.selected} />
+              <ListItem onPress={() => this.onToggleCategoryLocal(c.category)}>
+                <CheckBox
+                  checked={c.selected}
+                  onPress={() => this.onToggleCategoryLocal(c.category)}
+                />
                 <Body>
                   <Text>
                     {c.category}
