@@ -27,10 +27,5 @@ var styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center"
-  },
-  map: {
-    flex: 1,
-    width: 200,
-    height: 200
   }
 });
