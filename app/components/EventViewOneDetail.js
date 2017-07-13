@@ -18,21 +18,22 @@ import { getLatLong } from "../lib/Util";
 
 const EventViewOneDetail = props =>
   <Content style={{ backgroundColor: "white" }}>
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center"
-      }}
-    >
-      <Image
+    {props.event.image.length > 0 &&
+      <View
         style={{
-          width: 400,
-          height: 200
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center"
         }}
-        source={{ uri: props.event.image.replace("http", "https") }}
-      />
-    </View>
+      >
+        <Image
+          style={{
+            width: 400,
+            height: 200
+          }}
+          source={{ uri: props.event.image.replace("http", "https") }}
+        />
+      </View>}
 
     <List>
       <ListItem>
@@ -60,10 +61,7 @@ const EventViewOneDetail = props =>
       </ListItem>
       <ListItem
         onPress={() =>
-          this.openMap(
-            getLatLong(props.event.coordinates),
-            props.event.location
-          )}
+          openMap(getLatLong(props.event.coordinates), props.event.location)}
       >
         <Body>
           <Text note>Location</Text>
