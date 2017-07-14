@@ -58,21 +58,9 @@ export default class HomeScreen extends React.Component {
 
   componentDidMount() {
     fetchAndStore(dataSource, eventData => {
-      const eventCatList = new Set();
-      eventData.forEach(e => {
-        e.categories.forEach(c => {
-          if (c) {
-            eventCatList.add(c);
-          }
-        });
-      });
-
       this.setState({
         isLoading: false,
-        events: eventData,
-        filter: {
-          categories: [...eventCatList]
-        }
+        events: eventData
       });
     });
   }
@@ -195,7 +183,7 @@ export default class HomeScreen extends React.Component {
       }
 
       // category filter
-      if (e.categories.length > 0) {
+      if (this.state.filter.categories.length > 0 && e.categories.length > 0) {
         let isCat = false;
         e.categories.forEach(c => {
           if (this.state.filter.categories.includes(c)) {

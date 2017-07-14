@@ -42,7 +42,6 @@ const SearchView = props =>
         </Left>
         <Body>
           <Text>Distance (miles)</Text>
-
           <Item underline>
             <Input
               onChangeText={t => props.onTextChangeSearchLimitDistance(t)}
@@ -60,7 +59,6 @@ const SearchView = props =>
         <Text>Categories</Text>
       </Body>
       <Right>
-        <Text>ALL</Text>
         <Icon name="arrow-forward" />
       </Right>
     </ListItem>
