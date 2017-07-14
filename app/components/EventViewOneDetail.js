@@ -28,8 +28,8 @@ const EventViewOneDetail = props =>
       >
         <Image
           style={{
-            width: 400,
-            height: 200
+            width: 450,
+            height: 300
           }}
           source={{ uri: props.event.image.replace("http", "https") }}
         />
