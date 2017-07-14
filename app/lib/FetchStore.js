@@ -3,8 +3,8 @@ import { AsyncStorage } from "react-native";
 export async function fetchAndStore(url, onEventDataReady) {
   try {
     let now = Date.now();
-    // 24 hrs ago
-    let yesterday = now - 3.6e6 * 24;
+    // 3 hrs ago
+    let yesterday = now - 3.6e6 * 3;
 
     let lastFetch = JSON.parse(
       await AsyncStorage.getItem("@nycevents:lastfetch")
