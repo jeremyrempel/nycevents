@@ -105,6 +105,12 @@ export default class HomeScreen extends React.Component {
 
   // update geo and notify state mutation
   updateGeo() {
+    if (!this.state.filter.limitDistance) {
+      const newFilter = this.state.filter;
+      newFilter.limitDistance = mileRadius;
+      this.setState({ filter: newFilter });
+    }
+
     // get current location
     navigator.geolocation.getCurrentPosition(
       position => {
