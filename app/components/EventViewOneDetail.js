@@ -12,7 +12,6 @@ import {
   Content
 } from "native-base";
 import { Linking, Platform, Image, View } from "react-native";
-import { getLatLong } from "../lib/Util";
 
 //
 
@@ -44,24 +43,12 @@ const EventViewOneDetail = props =>
       <ListItem>
         <Body>
           <Text>
-            {props.event.description
-              .replaceAll("</p>", "\n")
-              .replaceAll("<li>", "-")
-              .replaceAll("<p>", "")
-              .replaceAll("</li>", "")
-              .replaceAll("</ul>", "")
-              .replaceAll("<ul>", "")
-              .replaceAll("&ldquo;", '"')
-              .replaceAll("&rdquo;", '"')
-              .replaceAll("&rsquo;", "'")
-              .decodeHTML()
-              .replace(/<(?:.|\n)*?>/gm, "")}
+            {props.event.description}
           </Text>
         </Body>
       </ListItem>
       <ListItem
-        onPress={() =>
-          openMap(getLatLong(props.event.coordinates), props.event.location)}
+        onPress={() => openMap(props.event.coordinates, props.event.location)}
       >
         <Body>
           <Text note>Location</Text>
@@ -132,28 +119,6 @@ const EventViewOneDetail = props =>
 
 export default EventViewOneDetail;
 
-function showImage(remoteImageUrl) {
-  if (remoteImageUrl.length > 0) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center"
-        }}
-      >
-        <Image
-          style={{
-            width: 400,
-            height: 200
-          }}
-          source={{ uri: remoteImageUrl.replace("http", "https") }}
-        />
-      </View>
-    );
-  }
-}
-
 function getBorough(parkids) {
   let bCode = parkids.substring(0, 1);
 
@@ -170,26 +135,6 @@ function getBorough(parkids) {
       return "Staten Island";
   }
 }
-
-String.prototype.decodeHTML = function() {
-  var map = { gt: ">" /* , … */ };
-  return this.replace(/&(#(?:x[0-9a-f]+|\d+)|[a-z]+);?/gi, function($0, $1) {
-    if ($1[0] === "#") {
-      return String.fromCharCode(
-        $1[1].toLowerCase() === "x"
-          ? parseInt($1.substr(2), 16)
-          : parseInt($1.substr(1), 10)
-      );
-    } else {
-      return map.hasOwnProperty($1) ? map[$1] : $0;
-    }
-  });
-};
-
-String.prototype.replaceAll = function(search, replacement) {
-  var target = this;
-  return target.replace(new RegExp(search, "g"), replacement);
-};
 
 function openMap(coords, locationName) {
   if (Platform.OS == "ios") {
