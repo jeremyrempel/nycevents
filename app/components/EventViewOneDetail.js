@@ -201,9 +201,19 @@ async function addEventToCalendar(event) {
     try {
       await RNCalendarEvents.saveEvent(event.title, {
         location: event.location,
-        notes: event.description,
+        notes: event.description + "\n" + event.link,
         startDate: event.startDateTime,
-        endDate: endDateTime
+        endDate: endDateTime,
+        alarms: [
+          {
+            date: -60,
+            structuredLocation: {
+              title: event.title,
+              proximity: "enter",
+              coords: event.coords
+            }
+          }
+        ]
       });
     } catch (err) {
       Alert.alert(err);
