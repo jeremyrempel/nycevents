@@ -15,7 +15,8 @@ import {
   Right,
   Icon
 } from "native-base";
-import { Share } from "react-native";
+import { Share, Alert } from "react-native";
+import RNCalendarEvents from "react-native-calendar-events";
 import EventMapView from "./EventMapView";
 import EventViewOneDetail from "./EventViewOneDetail";
 
@@ -63,6 +64,29 @@ export default class EventViewOne extends React.Component {
           <Right>
             <Button
               transparent
+              onPress={() => {
+                Alert.alert(
+                  "Calendar",
+                  `Add ${event.title} to your calendar?`,
+                  [
+                    {
+                      text: "Ok",
+                      onPress: () => addEventToCalendar(event)
+                    },
+                    {
+                      text: "Cancel",
+                      onPress: () => console.log("Cancel Pressed"),
+                      style: "cancel"
+                    }
+                  ]
+                );
+              }}
+            >
+              <Icon ios="ios-calendar-outline" android="md-calendar" />
+            </Button>
+
+            <Button
+              transparent
               onPress={() =>
                 Share.share({
                   message:
@@ -76,14 +100,43 @@ export default class EventViewOne extends React.Component {
           </Right>
         </Header>
 
-        {/* <EventViewDetail event={event}/>  */}
-
         {this.state.currentView == "map" &&
           <EventMapView title={event.location} coords={event.coordinates} />}
 
         {this.state.currentView == "detail" &&
           <EventViewOneDetail event={event} />}
       </Container>
+    );
+  }
+}
+
+async function addEventToCalendar(event) {
+  let status = null;
+  try {
+    // request calendar access
+    status = await RNCalendarEvents.authorizeEventStore();
+  } catch (err) {
+    Alert.alert(err);
+  }
+
+  if (status == "authorized") {
+    const endDateTime =
+      new Date(event.endDateTime).getTime() < new Date(event.startDateTime)
+        ? event.startDateTime
+        : event.endDateTime;
+    try {
+      await RNCalendarEvents.saveEvent(event.title, {
+        location: event.location,
+        notes: event.description,
+        startDate: event.startDateTime,
+        endDate: endDateTime
+      });
+    } catch (err) {
+      Alert.alert(err);
+    }
+  } else {
+    Alert.alert(
+      "App cannot access your calendar to add the event. You can grant access in the settings."
     );
   }
 }
