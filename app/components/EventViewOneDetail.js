@@ -7,14 +7,13 @@ import {
   ListItem,
   Text,
   Right,
+  Button,
   H1,
   Body,
   Content
 } from "native-base";
-import { Linking, Platform, Image, View } from "react-native";
-import { getLatLong } from "../lib/Util";
-
-//
+import { Linking, Platform, Image, View, Alert } from "react-native";
+import RNCalendarEvents from "react-native-calendar-events";
 
 const EventViewOneDetail = props =>
   <Content style={{ backgroundColor: "white" }}>
@@ -35,6 +34,27 @@ const EventViewOneDetail = props =>
         />
       </View>}
 
+    <Button
+      iconLeft
+      info
+      full
+      onPress={() => {
+        Alert.alert("Calendar", `Add ${props.event.title} to your calendar?`, [
+          {
+            text: "Ok",
+            onPress: () => addEventToCalendar(props.event)
+          },
+          {
+            text: "Cancel",
+            style: "cancel"
+          }
+        ]);
+      }}
+    >
+      <Icon name="ios-calendar-outline" />
+      <Text>Add to Calendar</Text>
+    </Button>
+
     <List>
       <ListItem>
         <H1>
@@ -44,24 +64,12 @@ const EventViewOneDetail = props =>
       <ListItem>
         <Body>
           <Text>
-            {props.event.description
-              .replaceAll("</p>", "\n")
-              .replaceAll("<li>", "-")
-              .replaceAll("<p>", "")
-              .replaceAll("</li>", "")
-              .replaceAll("</ul>", "")
-              .replaceAll("<ul>", "")
-              .replaceAll("&ldquo;", '"')
-              .replaceAll("&rdquo;", '"')
-              .replaceAll("&rsquo;", "'")
-              .decodeHTML()
-              .replace(/<(?:.|\n)*?>/gm, "")}
+            {props.event.description}
           </Text>
         </Body>
       </ListItem>
       <ListItem
-        onPress={() =>
-          openMap(getLatLong(props.event.coordinates), props.event.location)}
+        onPress={() => openMap(props.event.coordinates, props.event.location)}
       >
         <Body>
           <Text note>Location</Text>
@@ -132,28 +140,6 @@ const EventViewOneDetail = props =>
 
 export default EventViewOneDetail;
 
-function showImage(remoteImageUrl) {
-  if (remoteImageUrl.length > 0) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center"
-        }}
-      >
-        <Image
-          style={{
-            width: 400,
-            height: 200
-          }}
-          source={{ uri: remoteImageUrl.replace("http", "https") }}
-        />
-      </View>
-    );
-  }
-}
-
 function getBorough(parkids) {
   let bCode = parkids.substring(0, 1);
 
@@ -170,26 +156,6 @@ function getBorough(parkids) {
       return "Staten Island";
   }
 }
-
-String.prototype.decodeHTML = function() {
-  var map = { gt: ">" /* , … */ };
-  return this.replace(/&(#(?:x[0-9a-f]+|\d+)|[a-z]+);?/gi, function($0, $1) {
-    if ($1[0] === "#") {
-      return String.fromCharCode(
-        $1[1].toLowerCase() === "x"
-          ? parseInt($1.substr(2), 16)
-          : parseInt($1.substr(1), 10)
-      );
-    } else {
-      return map.hasOwnProperty($1) ? map[$1] : $0;
-    }
-  });
-};
-
-String.prototype.replaceAll = function(search, replacement) {
-  var target = this;
-  return target.replace(new RegExp(search, "g"), replacement);
-};
 
 function openMap(coords, locationName) {
   if (Platform.OS == "ios") {
@@ -212,8 +178,39 @@ function openMap(coords, locationName) {
   } else {
     const andGMap =
       "https://www.google.com/maps/search/?api=1&query=" +
-      location +
+      locationName +
       " New York";
     Linking.openURL(andGMap);
+  }
+}
+
+async function addEventToCalendar(event) {
+  let status = null;
+  try {
+    // request calendar access
+    status = await RNCalendarEvents.authorizeEventStore();
+  } catch (err) {
+    Alert.alert(err);
+  }
+
+  if (status == "authorized") {
+    const endDateTime =
+      new Date(event.endDateTime).getTime() < new Date(event.startDateTime)
+        ? event.startDateTime
+        : event.endDateTime;
+    try {
+      await RNCalendarEvents.saveEvent(event.title, {
+        location: event.location,
+        notes: event.description,
+        startDate: event.startDateTime,
+        endDate: endDateTime
+      });
+    } catch (err) {
+      Alert.alert(err);
+    }
+  } else {
+    Alert.alert(
+      "App cannot access your calendar to add the event. You can grant access in the settings."
+    );
   }
 }

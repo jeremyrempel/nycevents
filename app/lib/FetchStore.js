@@ -4,7 +4,7 @@ export async function fetchAndStore(url, onEventDataReady) {
   try {
     let now = Date.now();
     // 3 hrs ago
-    let yesterday = now - 3.6e6 * 3;
+    let yesterday = now - 3.6e6 * 12;
 
     let lastFetch = JSON.parse(
       await AsyncStorage.getItem("@nycevents:lastfetch")
@@ -17,12 +17,13 @@ export async function fetchAndStore(url, onEventDataReady) {
       const response = await fetch(url);
       const allEvents = await response.json();
 
-      const allEventsFilteredCat = setupCategories(allEvents);
+      // cleanup data
+      cleanupData(allEvents);
 
       // save to local storage
       await AsyncStorage.setItem(
         "@nycevents:events",
-        JSON.stringify(allEventsFilteredCat)
+        JSON.stringify(allEvents)
       );
 
       await AsyncStorage.setItem("@nycevents:lastfetch", JSON.stringify(now));
@@ -32,48 +33,73 @@ export async function fetchAndStore(url, onEventDataReady) {
       await AsyncStorage.getItem("@nycevents:events")
     );
 
-    const allEventsFiltered = futureEvents(allEvents);
-    onEventDataReady(allEventsFiltered);
+    // filter out any dates before now
+    const eventsAfterNow = allEvents.filter(e => {
+      if (e.endDateTime) {
+        return now <= new Date(e.endDateTime).getTime();
+      } else if (e.startDateTime) {
+        return now <= new Date(e.startDateTime).getTime();
+      }
+      return true;
+    });
+
+    onEventDataReady(eventsAfterNow);
   } catch (e) {
     console.error(e);
     return e;
   }
 }
 
-function setupCategories(eventList) {
-  eventList.forEach(e => {
-    const catSplit = e.categories.split("|");
+// format the correct date/time in the source data and save it
+function cleanupData(eventList) {
+  eventList.map(e => {
+    // update dates
+    e.startDateTime = parseDate(e.startdate, e.starttime);
+    e.endDateTime = parseDate(e.enddate, e.endtime);
 
-    e.categories = [];
-
-    for (let i = 0; i < catSplit.length; i++) {
-      const cat = catSplit[i].trim();
-      if (cat) {
-        e.categories.push(cat);
-      }
+    if (e.startDateTime instanceof Date) {
+      console.log("fail!" + e.startDateTime);
     }
-  });
 
-  return eventList;
-}
+    // update categories
+    e.categories = e.categories.split("|");
+    e.categories = e.categories.map(c => {
+      return c.trim();
+    });
 
-function futureEvents(allEvents) {
-  let dateNow = Date.now();
+    // update lat,long
+    const eventCoordSet = e.coordinates.split(";");
+    const eventCoord = eventCoordSet[0].split(",");
 
-  // filter out any dates before now
-  let eventsAfterNow = allEvents.filter(e => {
-    const dateStrSplit = e.startdate.split("-");
+    const latitude = Number(eventCoord[0]);
+    const longitude = Number(eventCoord[1]);
 
-    // https://stackoverflow.com/questions/141348/what-is-the-best-way-to-parse-a-time-into-a-date-object-from-user-input-in-javas
-    if (e.endtime) {
-      const time = e.endtime.match(/(\d+)(?::(\d\d))?\s*(p?)/);
+    e.coordinates = { latitude, longitude };
+
+    // strip html description
+    e.description = e.description
+      .replaceAll("</p>", "\n")
+      .replaceAll("<li>", "-")
+      .replaceAll("<p>", "")
+      .replaceAll("</li>", "")
+      .replaceAll("</ul>", "")
+      .replaceAll("<ul>", "")
+      .replaceAll("&ldquo;", '"')
+      .replaceAll("&rdquo;", '"')
+      .replaceAll("&rsquo;", "'")
+      .decodeHTML()
+      .replace(/<(?:.|\n)*?>/gm, "");
+
+    function parseDate(dateStr, timeStr) {
+      const dateStrSplit = dateStr.split("-");
+      const time = timeStr.match(/(\d+)(?::(\d\d))?\s*(p?)/);
       const hours = parseInt(
         parseInt(time[1]) + (parseInt(time[1]) < 12 && time[3] ? 12 : 0)
       );
       const minutes = parseInt(time[2]) || 0;
 
       // year, month, date, hour, minute, second, millisecond
-      const dateStart = new Date(
+      const newDateTime = new Date(
         dateStrSplit[0],
         dateStrSplit[1] - 1,
         dateStrSplit[2],
@@ -82,12 +108,28 @@ function futureEvents(allEvents) {
         0,
         0
       );
+      return newDateTime;
+    }
+    return e;
+  });
+}
 
-      return dateStart.getTime() >= dateNow;
+String.prototype.decodeHTML = function() {
+  var map = { gt: ">" /* , … */ };
+  return this.replace(/&(#(?:x[0-9a-f]+|\d+)|[a-z]+);?/gi, function($0, $1) {
+    if ($1[0] === "#") {
+      return String.fromCharCode(
+        $1[1].toLowerCase() === "x"
+          ? parseInt($1.substr(2), 16)
+          : parseInt($1.substr(1), 10)
+      );
     } else {
-      return true;
+      return map.hasOwnProperty($1) ? map[$1] : $0;
     }
   });
+};
 
-  return eventsAfterNow;
-}
+String.prototype.replaceAll = function(search, replacement) {
+  var target = this;
+  return target.replace(new RegExp(search, "g"), replacement);
+};

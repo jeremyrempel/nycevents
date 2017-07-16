@@ -16,7 +16,6 @@ import EventList from "./components/EventList";
 import SearchView from "./components/SearchView";
 import { distance } from "./lib/Distance";
 import { fetchAndStore } from "./lib/FetchStore";
-import { getLatLong } from "./lib/Util";
 
 const dataSource = "https://www.nycgovparks.org/xml/events_300_rss.json";
 const mileRadius = 6;
@@ -168,7 +167,7 @@ export default class HomeScreen extends React.Component {
         this.state.longitude
       ) {
         // filter on current location
-        const eventCoord = getLatLong(e.coordinates);
+        const eventCoord = e.coordinates;
 
         if (
           distance(

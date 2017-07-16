@@ -18,7 +18,6 @@ import {
 import { Share } from "react-native";
 import EventMapView from "./EventMapView";
 import EventViewOneDetail from "./EventViewOneDetail";
-import { getLatLong } from "../lib/Util";
 
 export default class EventViewOne extends React.Component {
   static navigationOptions = { header: null };
@@ -77,13 +76,8 @@ export default class EventViewOne extends React.Component {
           </Right>
         </Header>
 
-        {/* <EventViewDetail event={event}/>  */}
-
         {this.state.currentView == "map" &&
-          <EventMapView
-            title={event.location}
-            coords={getLatLong(event.coordinates)}
-          />}
+          <EventMapView title={event.location} coords={event.coordinates} />}
 
         {this.state.currentView == "detail" &&
           <EventViewOneDetail event={event} />}
