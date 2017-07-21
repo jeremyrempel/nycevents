@@ -18,17 +18,20 @@ export async function fetchAndStore(url, onEventDataReady) {
       const allEvents = await response.json();
 
       // cleanup data
-      cleanupData(allEvents);
+      const eventListFormat = cleanupData(allEvents);
 
       // save to local storage
       await AsyncStorage.setItem(
         "@nycevents:events",
-        JSON.stringify(allEvents)
+        JSON.stringify(eventListFormat)
       );
 
       await AsyncStorage.setItem("@nycevents:lastfetch", JSON.stringify(now));
+    } else {
+      console.log("getting events from cache");
     }
 
+    // read data from db
     const allEvents = JSON.parse(
       await AsyncStorage.getItem("@nycevents:events")
     );
@@ -56,10 +59,6 @@ function cleanupData(eventList) {
     // update dates
     e.startDateTime = parseDate(e.startdate, e.starttime);
     e.endDateTime = parseDate(e.enddate, e.endtime);
-
-    if (e.startDateTime instanceof Date) {
-      console.log("fail!" + e.startDateTime);
-    }
 
     // update categories
     e.categories = e.categories.split("|");
@@ -112,6 +111,24 @@ function cleanupData(eventList) {
     }
     return e;
   });
+
+  let i = 0;
+  let newValue = [];
+  eventList.forEach(e => {
+    const d = new Date(e.startdate);
+    const key =
+      d.getFullYear() + "-" + Number(d.getMonth() + 1) + "-" + d.getDate();
+
+    const existing = newValue.find(v => v.title === key);
+
+    if (existing) {
+      existing.data.push(e);
+    } else {
+      newValue.push({ title: key, data: [e] });
+    }
+  });
+
+  return newValue;
 }
 
 String.prototype.decodeHTML = function() {

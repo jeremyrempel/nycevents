@@ -1,79 +1,73 @@
-"use strict";
-
-/**
- * Created by jrempel on 6/14/17.
- */
-import React from "react";
+import React, { Component } from "react";
 import {
-  Separator,
-  Content,
-  List,
-  ListItem,
+  SectionList,
+  StyleSheet,
   Text,
-  Body,
-  Thumbnail,
-  Right,
-  Icon
-} from "native-base";
+  View,
+  PixelRatio,
+  Button
+} from "react-native";
+import sectionListGetItemLayout from "react-native-section-list-get-item-layout";
 
-let dates = [];
+export default class EventList extends React.Component {
+  constructor(props) {
+    super(props);
 
-const EventList = props =>
-  <List
-    style={{ backgroundColor: "white" }}
-    dataArray={props.events}
-    renderRow={item =>
-      <Content>
-        {showHeader(item.startdate) &&
-          <Separator bordered>
-            <Text>
-              {item.startdate}
-            </Text>
-          </Separator>}
+    this.getItemLayout = sectionListGetItemLayout({
+      // The height of the row with rowData at the given sectionIndex and rowIndex
+      getItemHeight: (rowData, sectionIndex, rowIndex) => 75,
 
-        <ListItem onPress={() => props.onPress(item)}>
-          {showImage(item.image)}
-          <Body>
-            <Text>
-              {item.title}
-            </Text>
-            <Text note>
-              {item.startdate} {item.starttime}
-            </Text>
-            <Text note>
-              {item.location}
-            </Text>
-            <Text note>
-              {item.categories.join(", ")}
-            </Text>
-          </Body>
-          <Right>
-            <Icon name="arrow-forward" />
-          </Right>
-        </ListItem>
-      </Content>}
-  />;
+      // These three properties are optional
+      getSeparatorHeight: () => 0 / PixelRatio.get(), // The height of your separators
+      getSectionHeaderHeight: () => 20, // The height of your section headers
+      getSectionFooterHeight: () => 0 // The height of your section footers
+    });
+  }
 
-export default EventList;
+  scrollToIndex = () => {
+    this.listRef.scrollToLocation({
+      animated: true,
+      sectionIndex: 1,
+      itemIndex: 0,
+      viewPosition: 0,
+      viewOffset: 20
+    });
+  };
 
-function showImage(remoteImageUrl) {
-  if (remoteImageUrl && remoteImageUrl.length > 0) {
+  render() {
     return (
-      <Thumbnail
-        large
-        source={{ uri: remoteImageUrl.replace("http", "https") }}
-      />
+      <View style={styles.container}>
+        <SectionList
+          ref={ref => (this.listRef = ref)}
+          keyExtractor={(item, index) => index}
+          getItemLayout={this.getItemLayout}
+          sections={this.props.events}
+          renderItem={({ item }) =>
+            <Text style={styles.item}>
+              {item.title}
+            </Text>}
+          renderSectionHeader={({ section }) =>
+            <View style={styles.sectionHeader}>
+              <Button
+                title={section.title}
+                onPress={() => this.scrollToIndex()}
+              />
+            </View>}
+        />
+      </View>
     );
-  } else {
-    return <Thumbnail large source={require("../img/park.png")} />;
   }
 }
 
-function showHeader(date) {
-  if (dates.indexOf(date) > -1) {
-    return false;
-  } else {
-    dates.push(date);
-    return true;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1
+  },
+  sectionHeader: {
+    height: 10
+  },
+  item: {
+    fontSize: 18,
+    height: 75
   }
-}
+});

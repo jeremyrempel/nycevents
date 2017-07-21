@@ -210,7 +210,9 @@ export default class HomeScreen extends React.Component {
   }
 
   render() {
-    const eventList = this.getEventsFiltered();
+    //const eventList = this.getEventsFiltered();
+
+    //console.log(this.state.events);
 
     return (
       <Container style={{ backgroundColor: "white" }}>
@@ -267,7 +269,7 @@ export default class HomeScreen extends React.Component {
         {this.state.isLoading &&
           <ActivityIndicator size="large" style={{ paddingTop: 150 }} />}
 
-        <EventList events={eventList} onPress={this.rowSelect} />
+        <EventList events={this.state.events} onPress={this.rowSelect} />
       </Container>
     );
   }
