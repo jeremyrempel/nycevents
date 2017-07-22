@@ -67,6 +67,25 @@ function cleanupData(eventList) {
       return c.trim();
     });
 
+    // add borough
+    switch (e.parkids.substring(0, 1)) {
+      case "B":
+        e.borough = "Brooklyn";
+        break;
+      case "M":
+        e.borough = "Manhattan";
+        break;
+      case "X":
+        e.borough = "Bronx";
+        break;
+      case "Q":
+        e.borough = "Queens";
+        break;
+      case "R":
+        e.borough = "Staten Island";
+        break;
+    }
+
     // update lat,long
     const eventCoordSet = e.coordinates.split(";");
     const eventCoord = eventCoordSet[0].split(",");
