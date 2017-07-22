@@ -8,7 +8,8 @@ import {
   Body,
   Thumbnail,
   Right,
-  Icon
+  Icon,
+  Button
 } from "native-base";
 import sectionListGetItemLayout from "react-native-section-list-get-item-layout";
 import moment from "moment";
@@ -29,16 +30,48 @@ export default class EventList extends Component {
       getSectionHeaderHeight: () => sectionHeaderHeight, // The height of your section headers
       getSectionFooterHeight: () => 0 // The height of your section footers
     });
+
+    this.scrollToNext = this.scrollToNext.bind(this);
+    this.scrollToPrev = this.scrollToPrev.bind(this);
+    this.scrollToIndex = this.scrollToIndex.bind(this);
   }
 
-  scrollToIndex(newIndex) {
+  scrollToIndex(newIndex, animated = false) {
     this.listRef.scrollToLocation({
-      animated: false,
+      animated: animated,
       sectionIndex: newIndex,
       itemIndex: 0,
       viewPosition: 0,
       viewOffset: 10
     });
+  }
+
+  scrollToNext(sectionTitle) {
+    const sectionIdx = this.props.events.findIndex(
+      e => e.title == sectionTitle
+    );
+
+    if (sectionIdx + 1 < this.props.events.length) {
+      this.scrollToIndex(sectionIdx + 1, true);
+    }
+  }
+
+  scrollToPrev(sectionTitle) {
+    const sectionIdx = this.props.events.findIndex(
+      e => e.title == sectionTitle
+    );
+
+    if (sectionIdx > 0) {
+      this.scrollToIndex(sectionIdx - 1, true);
+    }
+  }
+
+  doesPrevSectionExist(sectionTitle) {
+    const sectionIdx = this.props.events.findIndex(
+      e => e.title == sectionTitle
+    );
+
+    return sectionIdx > 0;
   }
 
   render() {
@@ -74,27 +107,47 @@ export default class EventList extends Component {
               </Right>
             </ListItem>}
           renderSectionHeader={({ section }) =>
-            <ListItem
-              itemHeader
-              first
+            <View
               style={{
-                backgroundColor: "whitesmoke",
-                height: sectionHeaderHeight
+                flex: 1,
+                justifyContent: "space-between",
+                flexDirection: "row",
+                backgroundColor: "white",
+                height: sectionHeaderHeight,
+                borderWidth: 0.5,
+                borderColor: "#d6d7da"
               }}
             >
+              {this.props.events.findIndex(e => e.title == section.title) > 0 &&
+                <Button transparent>
+                  <Icon
+                    name="arrow-back"
+                    onPress={() => this.scrollToPrev(section.title)}
+                  />
+                </Button>}
+
               <Picker
-                textStyle={{ color: "black" }}
+                textStyle={{ color: "rgb(14, 122, 254)" }}
                 iosHeader="Select date"
                 mode="dropdown"
                 placeholder={moment(section.title).format("dddd, MMMM Do")}
-                onValueChange={this.scrollToIndex.bind(this)}
+                onValueChange={this.scrollToIndex}
               >
                 {this.props.events.map(function(o, i) {
                   const k = moment(o.title).format("dddd, MMMM Do");
                   return <Item label={k} value={i} key={i} />;
                 })}
               </Picker>
-            </ListItem>}
+
+              {this.props.events.findIndex(e => e.title == section.title) + 1 <
+                this.props.events.length &&
+                <Button transparent>
+                  <Icon
+                    name="arrow-forward"
+                    onPress={() => this.scrollToNext(section.title)}
+                  />
+                </Button>}
+            </View>}
         />
       </View>
     );
