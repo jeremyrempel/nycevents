@@ -9,7 +9,7 @@ import {
   Thumbnail,
   Right,
   Icon,
-  Button
+  Container
 } from "native-base";
 import sectionListGetItemLayout from "react-native-section-list-get-item-layout";
 import moment from "moment";
@@ -26,7 +26,7 @@ export default class EventList extends Component {
       getItemHeight: (rowData, sectionIndex, rowIndex) => rowHeight,
 
       // These three properties are optional
-      getSeparatorHeight: () => 1 / PixelRatio.get(), // The height of your separators
+      getSeparatorHeight: () => 0, // The height of your separators
       getSectionHeaderHeight: () => sectionHeaderHeight, // The height of your section headers
       getSectionFooterHeight: () => 0 // The height of your section footers
     });
@@ -42,7 +42,7 @@ export default class EventList extends Component {
       sectionIndex: newIndex,
       itemIndex: 0,
       viewPosition: 0,
-      viewOffset: 10
+      viewOffset: 20
     });
   }
 
@@ -107,24 +107,19 @@ export default class EventList extends Component {
               </Right>
             </ListItem>}
           renderSectionHeader={({ section }) =>
-            <View
+            <Container
               style={{
-                flex: 1,
-                justifyContent: "space-between",
-                flexDirection: "row",
                 backgroundColor: "white",
-                height: sectionHeaderHeight,
-                borderWidth: 0.5,
-                borderColor: "#d6d7da"
+                height: sectionHeaderHeight
               }}
             >
-              {this.props.events.findIndex(e => e.title == section.title) > 0 &&
+              {/*this.props.events.findIndex(e => e.title == section.title) > 0 &&
                 <Button transparent>
                   <Icon
                     name="arrow-back"
                     onPress={() => this.scrollToPrev(section.title)}
                   />
-                </Button>}
+                </Button>*/}
 
               <Picker
                 textStyle={{ color: "rgb(14, 122, 254)" }}
@@ -139,15 +134,15 @@ export default class EventList extends Component {
                 })}
               </Picker>
 
-              {this.props.events.findIndex(e => e.title == section.title) + 1 <
+              {/*this.props.events.findIndex(e => e.title == section.title) + 1 <
                 this.props.events.length &&
                 <Button transparent>
                   <Icon
                     name="arrow-forward"
                     onPress={() => this.scrollToNext(section.title)}
                   />
-                </Button>}
-            </View>}
+                </Button>*/}
+            </Container>}
         />
       </View>
     );
