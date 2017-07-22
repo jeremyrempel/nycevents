@@ -4,7 +4,7 @@ import moment from "moment";
 export async function fetchAndStore(url, onEventDataReady) {
   try {
     let now = Date.now();
-    // 3 hrs ago
+    // 12 hrs ago
     let yesterday = now - 3.6e6 * 12;
 
     let lastFetch = JSON.parse(
