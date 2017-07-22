@@ -87,7 +87,7 @@ const EventViewOneDetail = props =>
           <Body>
             <Text note>Borough</Text>
             <Text>
-              {getBorough(props.event.parkids)}
+              {props.event.borough}
             </Text>
           </Body>
         </ListItem>}
@@ -139,23 +139,6 @@ const EventViewOneDetail = props =>
   </Content>;
 
 export default EventViewOneDetail;
-
-function getBorough(parkids) {
-  let bCode = parkids.substring(0, 1);
-
-  switch (bCode) {
-    case "B":
-      return "Brooklyn";
-    case "M":
-      return "Manhattan";
-    case "X":
-      return "Bronx";
-    case "Q":
-      return "Queens";
-    case "R":
-      return "Staten Island";
-  }
-}
 
 function openMap(coords, locationName) {
   if (Platform.OS == "ios") {

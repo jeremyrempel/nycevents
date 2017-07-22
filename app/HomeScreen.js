@@ -119,27 +119,32 @@ export default class HomeScreen extends React.Component {
   selectCategories() {
     const { navigate } = this.props.navigation;
 
-    // find unique categories and if currently selected in state
-    const eventCatSet = new Set();
-    this.state.events.forEach(e => {
-      e.categories.forEach(c => {
-        if (c) {
-          eventCatSet.add(c);
+    // flatten, sort event categories
+    const allCatArray = this.state.events
+      .reduce((accum, element) => {
+        return accum.concat(element.data);
+      }, [])
+      .reduce((accum, element) => {
+        return accum.concat(element.categories);
+      }, [])
+      .reduce((accum, element) => {
+        if (accum.indexOf(element) == -1 && element) {
+          accum.push(element);
         }
-      });
-    });
+        return accum;
+      }, [])
+      .sort();
 
-    const eventCatSetSorted = [...eventCatSet].sort();
-    let eventCatList = [];
-    eventCatSetSorted.forEach(i => {
-      eventCatList.push({
-        category: i,
-        selected: this.state.filter.categories.includes(i)
-      });
+    // object array {category, selected}
+    const eventCatObjArray = allCatArray.map(v => {
+      return {
+        category: v,
+        selected: this.state.filter.categories.includes(v)
+      };
     });
 
     navigate("CategorySelect", {
-      categories: eventCatList,
+      categories: eventCatObjArray,
       onToggleCategory: this.onToggleCategory
     });
   }
@@ -158,59 +163,83 @@ export default class HomeScreen extends React.Component {
     });
   }
 
+  // return filtered list of events
   getEventsFiltered() {
-    return this.state.events.filter(e => {
-      // geo filter
-      if (
-        this.state.filter.limitGeo &&
-        this.state.latitude &&
-        this.state.longitude
-      ) {
-        // filter on current location
-        const eventCoord = e.coordinates;
+    return this.state.events
+      .map(section => {
+        return {
+          title: section.title,
+          data: section.data.filter(e => {
+            // geo filter
+            if (
+              this.state.filter.limitGeo &&
+              this.state.latitude &&
+              this.state.longitude
+            ) {
+              // filter on current location
+              const eventCoord = e.coordinates;
 
-        if (
-          distance(
-            eventCoord.latitude,
-            eventCoord.longitude,
-            this.state.latitude,
-            this.state.longitude
-          ) > this.state.filter.limitDistance
-        ) {
-          return false;
-        }
-      }
+              if (
+                distance(
+                  eventCoord.latitude,
+                  eventCoord.longitude,
+                  this.state.latitude,
+                  this.state.longitude
+                ) > this.state.filter.limitDistance
+              ) {
+                return false;
+              }
+            }
 
-      // category filter
-      if (this.state.filter.categories.length > 0 && e.categories.length > 0) {
-        let isCat = false;
-        e.categories.forEach(c => {
-          if (this.state.filter.categories.includes(c)) {
-            isCat = true;
-          }
-        });
+            // category filter
+            if (
+              this.state.filter.categories.length > 0 &&
+              e.categories.length > 0
+            ) {
+              let isCat = false;
+              e.categories.forEach(c => {
+                if (this.state.filter.categories.includes(c)) {
+                  isCat = true;
+                }
+              });
 
-        if (!isCat) {
-          return false;
-        }
-      }
+              if (!isCat) {
+                return false;
+              }
+            }
 
-      // text filter
-      if (this.state.filter.searchText) {
-        const st = this.state.filter.searchText.toUpperCase();
-        return (
-          e.title.toUpperCase().includes(st) ||
-          e.location.toUpperCase().includes(st) ||
-          e.startdate.toUpperCase().includes(st)
-        );
-      }
+            // text filter
+            if (this.state.filter.searchText) {
+              const st = this.state.filter.searchText.toUpperCase();
+              return (
+                e.title.toUpperCase().includes(st) ||
+                e.location.toUpperCase().includes(st) ||
+                e.startdate.toUpperCase().includes(st)
+              );
+            }
 
-      return true;
-    });
+            return true;
+          })
+        };
+      })
+      .filter(e => {
+        // hide empty sections
+        return e.data.length > 0;
+      });
   }
 
   render() {
-    const eventList = this.getEventsFiltered();
+    const filteredEventList = this.getEventsFiltered();
+
+    const currentEventsNumber = filteredEventList.reduce(
+      (sum, value) => sum + value.data.length,
+      0
+    );
+
+    const totalEventsNumber = this.state.events.reduce(
+      (sum, value) => sum + value.data.length,
+      0
+    );
 
     return (
       <Container style={{ backgroundColor: "white" }}>
@@ -258,8 +287,8 @@ export default class HomeScreen extends React.Component {
               this.onTextChangeSearchLimitDistance
             }
             toggleSearchLimitGeo={this.toggleSearchLimitGeo}
-            currentEventsNumber={eventList.length}
-            totalEventsNumber={this.state.events.length}
+            currentEventsNumber={currentEventsNumber}
+            totalEventsNumber={totalEventsNumber}
             onSelectCategories={this.selectCategories}
           />}
         {this.state.error && <Text>Error loading event data</Text>}
@@ -267,7 +296,7 @@ export default class HomeScreen extends React.Component {
         {this.state.isLoading &&
           <ActivityIndicator size="large" style={{ paddingTop: 150 }} />}
 
-        <EventList events={eventList} onPress={this.rowSelect} />
+        <EventList events={filteredEventList} onPress={this.rowSelect} />
       </Container>
     );
   }

@@ -1,9 +1,10 @@
 import { AsyncStorage } from "react-native";
+import moment from "moment";
 
 export async function fetchAndStore(url, onEventDataReady) {
   try {
     let now = Date.now();
-    // 3 hrs ago
+    // 12 hrs ago
     let yesterday = now - 3.6e6 * 12;
 
     let lastFetch = JSON.parse(
@@ -18,17 +19,20 @@ export async function fetchAndStore(url, onEventDataReady) {
       const allEvents = await response.json();
 
       // cleanup data
-      cleanupData(allEvents);
+      const eventListFormat = cleanupData(allEvents);
 
       // save to local storage
       await AsyncStorage.setItem(
         "@nycevents:events",
-        JSON.stringify(allEvents)
+        JSON.stringify(eventListFormat)
       );
 
       await AsyncStorage.setItem("@nycevents:lastfetch", JSON.stringify(now));
+    } else {
+      console.log("getting events from cache");
     }
 
+    // read data from db
     const allEvents = JSON.parse(
       await AsyncStorage.getItem("@nycevents:events")
     );
@@ -57,15 +61,30 @@ function cleanupData(eventList) {
     e.startDateTime = parseDate(e.startdate, e.starttime);
     e.endDateTime = parseDate(e.enddate, e.endtime);
 
-    if (e.startDateTime instanceof Date) {
-      console.log("fail!" + e.startDateTime);
-    }
-
     // update categories
     e.categories = e.categories.split("|");
     e.categories = e.categories.map(c => {
       return c.trim();
     });
+
+    // add borough
+    switch (e.parkids.substring(0, 1)) {
+      case "B":
+        e.borough = "Brooklyn";
+        break;
+      case "M":
+        e.borough = "Manhattan";
+        break;
+      case "X":
+        e.borough = "Bronx";
+        break;
+      case "Q":
+        e.borough = "Queens";
+        break;
+      case "R":
+        e.borough = "Staten Island";
+        break;
+    }
 
     // update lat,long
     const eventCoordSet = e.coordinates.split(";");
@@ -112,6 +131,28 @@ function cleanupData(eventList) {
     }
     return e;
   });
+
+  let newValue = [];
+  eventList.forEach(e => {
+    const key = moment(e.startdate)
+      .set({
+        hour: 0,
+        minutes: 0,
+        second: 0,
+        millisecond: 0
+      })
+      .toISOString();
+
+    const existing = newValue.find(v => v.title === key);
+
+    if (existing) {
+      existing.data.push(e);
+    } else {
+      newValue.push({ title: key, data: [e] });
+    }
+  });
+
+  return newValue;
 }
 
 String.prototype.decodeHTML = function() {
