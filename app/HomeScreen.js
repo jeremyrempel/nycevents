@@ -119,27 +119,32 @@ export default class HomeScreen extends React.Component {
   selectCategories() {
     const { navigate } = this.props.navigation;
 
-    // find unique categories and if currently selected in state
-    const eventCatSet = new Set();
-    this.state.events.forEach(e => {
-      e.categories.forEach(c => {
-        if (c) {
-          eventCatSet.add(c);
+    // flatten, sort event categories
+    const allCatArray = this.state.events
+      .reduce((accum, element) => {
+        return accum.concat(element.data);
+      }, [])
+      .reduce((accum, element) => {
+        return accum.concat(element.categories);
+      }, [])
+      .reduce((accum, element) => {
+        if (accum.indexOf(element) == -1 && element) {
+          accum.push(element);
         }
-      });
-    });
+        return accum;
+      }, [])
+      .sort();
 
-    const eventCatSetSorted = [...eventCatSet].sort();
-    let eventCatList = [];
-    eventCatSetSorted.forEach(i => {
-      eventCatList.push({
-        category: i,
-        selected: this.state.filter.categories.includes(i)
-      });
+    // object array {category, selected}
+    const eventCatObjArray = allCatArray.map(v => {
+      return {
+        category: v,
+        selected: this.state.filter.categories.includes(v)
+      };
     });
 
     navigate("CategorySelect", {
-      categories: eventCatList,
+      categories: eventCatObjArray,
       onToggleCategory: this.onToggleCategory
     });
   }
