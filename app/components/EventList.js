@@ -33,7 +33,7 @@ export default class EventList extends Component {
 
   scrollToIndex(newIndex) {
     this.listRef.scrollToLocation({
-      animated: true,
+      animated: false,
       sectionIndex: newIndex,
       itemIndex: 0,
       viewPosition: 0,
