@@ -15,9 +15,10 @@ import {
   Right,
   Icon
 } from "native-base";
-import { Share } from "react-native";
+import { Share, Alert } from "react-native";
 import EventMapView from "./EventMapView";
 import EventViewOneDetail from "./EventViewOneDetail";
+import RNCalendarEvents from "react-native-calendar-events";
 
 export default class EventViewOne extends React.Component {
   static navigationOptions = { header: null };
@@ -81,7 +82,69 @@ export default class EventViewOne extends React.Component {
 
         {this.state.currentView == "detail" &&
           <EventViewOneDetail event={event} />}
+
+        <Button
+          iconLeft
+          info
+          full
+          onPress={() => {
+            Alert.alert("Calendar", `Add ${event.title} to your calendar?`, [
+              {
+                text: "Ok",
+                onPress: () => addEventToCalendar(event)
+              },
+              {
+                text: "Cancel",
+                style: "cancel"
+              }
+            ]);
+          }}
+        >
+          <Icon name="ios-calendar-outline" />
+          <Text>Add to Calendar</Text>
+        </Button>
       </Container>
+    );
+  }
+}
+
+async function addEventToCalendar(event) {
+  let status = null;
+  try {
+    // request calendar access
+    status = await RNCalendarEvents.authorizeEventStore();
+  } catch (err) {
+    Alert.alert(err);
+  }
+
+  if (status == "authorized") {
+    const endDateTime =
+      new Date(event.endDateTime).getTime() < new Date(event.startDateTime)
+        ? event.startDateTime
+        : event.endDateTime;
+    try {
+      await RNCalendarEvents.saveEvent(event.title, {
+        location: event.location,
+        notes: event.description + "\n" + event.link,
+        startDate: event.startDateTime,
+        endDate: endDateTime,
+        alarms: [
+          {
+            date: -60,
+            structuredLocation: {
+              title: event.title,
+              proximity: "enter",
+              coords: event.coords
+            }
+          }
+        ]
+      });
+    } catch (err) {
+      Alert.alert(err);
+    }
+  } else {
+    Alert.alert(
+      "App cannot access your calendar to add the event. You can grant access in the settings."
     );
   }
 }
