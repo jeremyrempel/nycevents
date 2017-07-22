@@ -158,61 +158,73 @@ export default class HomeScreen extends React.Component {
     });
   }
 
+  // return filtered list of events
   getEventsFiltered() {
-    return this.state.events.filter(e => {
-      // geo filter
-      if (
-        this.state.filter.limitGeo &&
-        this.state.latitude &&
-        this.state.longitude
-      ) {
-        // filter on current location
-        const eventCoord = e.coordinates;
+    return this.state.events
+      .map(section => {
+        return {
+          title: section.title,
+          data: section.data.filter(e => {
+            // geo filter
+            if (
+              this.state.filter.limitGeo &&
+              this.state.latitude &&
+              this.state.longitude
+            ) {
+              // filter on current location
+              const eventCoord = e.coordinates;
 
-        if (
-          distance(
-            eventCoord.latitude,
-            eventCoord.longitude,
-            this.state.latitude,
-            this.state.longitude
-          ) > this.state.filter.limitDistance
-        ) {
-          return false;
-        }
-      }
+              if (
+                distance(
+                  eventCoord.latitude,
+                  eventCoord.longitude,
+                  this.state.latitude,
+                  this.state.longitude
+                ) > this.state.filter.limitDistance
+              ) {
+                return false;
+              }
+            }
 
-      // category filter
-      if (this.state.filter.categories.length > 0 && e.categories.length > 0) {
-        let isCat = false;
-        e.categories.forEach(c => {
-          if (this.state.filter.categories.includes(c)) {
-            isCat = true;
-          }
-        });
+            // category filter
+            if (
+              this.state.filter.categories.length > 0 &&
+              e.categories.length > 0
+            ) {
+              let isCat = false;
+              e.categories.forEach(c => {
+                if (this.state.filter.categories.includes(c)) {
+                  isCat = true;
+                }
+              });
 
-        if (!isCat) {
-          return false;
-        }
-      }
+              if (!isCat) {
+                return false;
+              }
+            }
 
-      // text filter
-      if (this.state.filter.searchText) {
-        const st = this.state.filter.searchText.toUpperCase();
-        return (
-          e.title.toUpperCase().includes(st) ||
-          e.location.toUpperCase().includes(st) ||
-          e.startdate.toUpperCase().includes(st)
-        );
-      }
+            // text filter
+            if (this.state.filter.searchText) {
+              const st = this.state.filter.searchText.toUpperCase();
+              return (
+                e.title.toUpperCase().includes(st) ||
+                e.location.toUpperCase().includes(st) ||
+                e.startdate.toUpperCase().includes(st)
+              );
+            }
 
-      return true;
-    });
+            return true;
+          })
+        };
+      })
+      .filter(e => {
+        // hide empty sections
+        return e.data.length > 0;
+      });
   }
 
   render() {
-    //const eventList = this.getEventsFiltered();
-
-    //console.log(this.state.events);
+    const eventList = this.getEventsFiltered();
 
     return (
       <Container style={{ backgroundColor: "white" }}>
@@ -269,7 +281,7 @@ export default class HomeScreen extends React.Component {
         {this.state.isLoading &&
           <ActivityIndicator size="large" style={{ paddingTop: 150 }} />}
 
-        <EventList events={this.state.events} onPress={this.rowSelect} />
+        <EventList events={eventList} onPress={this.rowSelect} />
       </Container>
     );
   }
