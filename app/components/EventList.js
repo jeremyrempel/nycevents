@@ -25,7 +25,7 @@ export default class EventList extends Component {
       getItemHeight: (rowData, sectionIndex, rowIndex) => rowHeight,
 
       // These three properties are optional
-      getSeparatorHeight: () => 0 / PixelRatio.get(), // The height of your separators
+      getSeparatorHeight: () => 1 / PixelRatio.get(), // The height of your separators
       getSectionHeaderHeight: () => sectionHeaderHeight, // The height of your section headers
       getSectionFooterHeight: () => 0 // The height of your section footers
     });
@@ -78,11 +78,12 @@ export default class EventList extends Component {
               itemHeader
               first
               style={{
-                backgroundColor: "white",
+                backgroundColor: "whitesmoke",
                 height: sectionHeaderHeight
               }}
             >
               <Picker
+                textStyle={{ color: "black" }}
                 iosHeader="Select date"
                 mode="dropdown"
                 placeholder={moment(section.title).format("dddd, MMMM Do")}
