@@ -1,38 +1,45 @@
 import React, { Component } from "react";
+import { SectionList, StyleSheet, View, PixelRatio } from "react-native";
 import {
-  SectionList,
-  StyleSheet,
+  Picker,
+  Item,
+  ListItem,
   Text,
-  View,
-  PixelRatio,
-  Button
-} from "react-native";
+  Body,
+  Thumbnail,
+  Right,
+  Icon
+} from "native-base";
 import sectionListGetItemLayout from "react-native-section-list-get-item-layout";
+import moment from "moment";
 
-export default class EventList extends React.Component {
+const rowHeight = 150;
+const sectionHeaderHeight = 40;
+
+export default class EventList extends Component {
   constructor(props) {
     super(props);
 
     this.getItemLayout = sectionListGetItemLayout({
       // The height of the row with rowData at the given sectionIndex and rowIndex
-      getItemHeight: (rowData, sectionIndex, rowIndex) => 75,
+      getItemHeight: (rowData, sectionIndex, rowIndex) => rowHeight,
 
       // These three properties are optional
       getSeparatorHeight: () => 0 / PixelRatio.get(), // The height of your separators
-      getSectionHeaderHeight: () => 20, // The height of your section headers
+      getSectionHeaderHeight: () => sectionHeaderHeight, // The height of your section headers
       getSectionFooterHeight: () => 0 // The height of your section footers
     });
   }
 
-  scrollToIndex = () => {
+  scrollToIndex(newIndex) {
     this.listRef.scrollToLocation({
       animated: true,
-      sectionIndex: 1,
+      sectionIndex: newIndex,
       itemIndex: 0,
       viewPosition: 0,
-      viewOffset: 20
+      viewOffset: 10
     });
-  };
+  }
 
   render() {
     return (
@@ -43,19 +50,66 @@ export default class EventList extends React.Component {
           getItemLayout={this.getItemLayout}
           sections={this.props.events}
           renderItem={({ item }) =>
-            <Text style={styles.item}>
-              {item.title}
-            </Text>}
+            <ListItem
+              style={{ height: rowHeight }}
+              onPress={() => this.props.onPress(item)}
+            >
+              {showImage(item.image)}
+              <Body style={{ flex: 1 }}>
+                <Text>
+                  {item.title}
+                </Text>
+                <Text note>
+                  {item.starttime}
+                </Text>
+                <Text note>
+                  {item.boro}
+                </Text>
+                <Text note>
+                  {item.categories.join(", ")}
+                </Text>
+              </Body>
+              <Right>
+                <Icon name="arrow-forward" />
+              </Right>
+            </ListItem>}
           renderSectionHeader={({ section }) =>
-            <View style={styles.sectionHeader}>
-              <Button
-                title={section.title}
-                onPress={() => this.scrollToIndex()}
-              />
-            </View>}
+            <ListItem
+              itemHeader
+              first
+              style={{
+                backgroundColor: "white",
+                height: sectionHeaderHeight
+              }}
+            >
+              <Picker
+                iosHeader="Select date"
+                mode="dropdown"
+                placeholder={moment(section.title).format("dddd, MMMM Do")}
+                onValueChange={this.scrollToIndex.bind(this)}
+              >
+                {this.props.events.map(function(o, i) {
+                  const k = moment(o.title).format("dddd, MMMM Do");
+                  return <Item label={k} value={i} key={i} />;
+                })}
+              </Picker>
+            </ListItem>}
         />
       </View>
     );
+  }
+}
+
+function showImage(remoteImageUrl) {
+  if (remoteImageUrl && remoteImageUrl.length > 0) {
+    return (
+      <Thumbnail
+        large
+        source={{ uri: remoteImageUrl.replace("http", "https") }}
+      />
+    );
+  } else {
+    return <Thumbnail large source={require("../img/park.png")} />;
   }
 }
 
@@ -64,10 +118,9 @@ const styles = StyleSheet.create({
     flex: 1
   },
   sectionHeader: {
-    height: 10
+    height: sectionHeaderHeight
   },
   item: {
-    fontSize: 18,
-    height: 75
+    height: rowHeight
   }
 });
