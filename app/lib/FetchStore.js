@@ -1,4 +1,5 @@
 import { AsyncStorage } from "react-native";
+import moment from "moment";
 
 export async function fetchAndStore(url, onEventDataReady) {
   try {
@@ -112,12 +113,16 @@ function cleanupData(eventList) {
     return e;
   });
 
-  let i = 0;
   let newValue = [];
   eventList.forEach(e => {
-    const d = new Date(e.startdate);
-    const key =
-      d.getFullYear() + "-" + Number(d.getMonth() + 1) + "-" + d.getDate();
+    const key = moment(e.startdate)
+      .set({
+        hour: 0,
+        minutes: 0,
+        second: 0,
+        millisecond: 0
+      })
+      .toISOString();
 
     const existing = newValue.find(v => v.title === key);
 
