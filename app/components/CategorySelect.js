@@ -58,7 +58,7 @@ export default class CategorySelect extends React.Component {
           <Right>
             <Button transparent>
               {Platform.OS === "ios"
-                ? <Text>Select All</Text>
+                ? <Text>Clear</Text>
                 : <Icon name="md-arrow-round-up" />}
             </Button>
           </Right>
