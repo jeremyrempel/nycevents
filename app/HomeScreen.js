@@ -224,7 +224,17 @@ export default class HomeScreen extends React.Component {
   }
 
   render() {
-    const eventList = this.getEventsFiltered();
+    const filteredEventList = this.getEventsFiltered();
+
+    const currentEventsNumber = filteredEventList.reduce(
+      (sum, value) => sum + value.data.length,
+      0
+    );
+
+    const totalEventsNumber = this.state.events.reduce(
+      (sum, value) => sum + value.data.length,
+      0
+    );
 
     return (
       <Container style={{ backgroundColor: "white" }}>
@@ -272,8 +282,8 @@ export default class HomeScreen extends React.Component {
               this.onTextChangeSearchLimitDistance
             }
             toggleSearchLimitGeo={this.toggleSearchLimitGeo}
-            currentEventsNumber={eventList.length}
-            totalEventsNumber={this.state.events.length}
+            currentEventsNumber={currentEventsNumber}
+            totalEventsNumber={totalEventsNumber}
             onSelectCategories={this.selectCategories}
           />}
         {this.state.error && <Text>Error loading event data</Text>}
@@ -281,7 +291,7 @@ export default class HomeScreen extends React.Component {
         {this.state.isLoading &&
           <ActivityIndicator size="large" style={{ paddingTop: 150 }} />}
 
-        <EventList events={eventList} onPress={this.rowSelect} />
+        <EventList events={filteredEventList} onPress={this.rowSelect} />
       </Container>
     );
   }
