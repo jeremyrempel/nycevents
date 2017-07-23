@@ -66,8 +66,7 @@ export default class EventViewOne extends React.Component {
               transparent
               onPress={() =>
                 Share.share({
-                  message:
-                    event.title + "\n" + event.link + "\nNYC Park Events App",
+                  message: event.title + "\nNYC Park Events App\n",
                   dialogTitle: event.title,
                   url: event.link
                 })}
