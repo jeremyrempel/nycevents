@@ -42,6 +42,19 @@ export default class CategorySelect extends Component {
     });
   }
 
+  clearAll() {
+    const newCategory = this.state.categories.map(c => {
+      return {
+        category: c.category,
+        selected: false
+      };
+    });
+
+    this.setState({
+      categories: newCategory
+    });
+  }
+
   goBack() {
     const { onToggleCategory } = this.props.navigation.state.params;
     const { goBack } = this.props.navigation;
@@ -74,7 +87,7 @@ export default class CategorySelect extends Component {
             <Title>Select Categories</Title>
           </Body>
           <Right>
-            <Button transparent>
+            <Button transparent onPress={() => this.clearAll()}>
               {Platform.OS === "ios"
                 ? <Text>Clear</Text>
                 : <Icon name="md-arrow-round-up" />}
