@@ -12,9 +12,10 @@ import {
   Item,
   Input
 } from "native-base";
-import EventList from "./EventList";
-import SearchView from "./SearchView";
-import { distance } from "./Distance";
+import EventList from "./components/EventList";
+import SearchView from "./components/SearchView";
+import { distance } from "./lib/Distance";
+import { fetchAndStore } from "./lib/FetchStore";
 
 const dataSource = "https://www.nycgovparks.org/xml/events_300_rss.json";
 const mileRadius = 6;
@@ -26,100 +27,77 @@ export default class HomeScreen extends React.Component {
     super();
 
     this.state = {
-      isLoading: true,
       events: [],
+      isLoading: true,
       error: null,
+      searchVisible: false,
       latitude: null,
       longitude: null,
-      searchVisible: false,
-      searchText: null,
-      searchLimitGeo: false,
-      searchLimitDistance: mileRadius
+      filter: {
+        searchText: null,
+        limitGeo: false,
+        limitDistance: mileRadius,
+        categories: []
+      }
     };
 
     this.rowSelect = this.rowSelect.bind(this);
+    this.selectCategories = this.selectCategories.bind(this);
     this.toggleSearchLimitGeo = this.toggleSearchLimitGeo.bind(this);
     this.onTextChangeSearchLimitDistance = this.onTextChangeSearchLimitDistance.bind(
       this
     );
+    this.onToggleCategory = this.onToggleCategory.bind(this);
 
     // if geo limiter, get the coordinates
-    if (this.state.toggleSearchLimitGeo) {
+    if (this.state.filter.limitGeo) {
       this.updateGeo();
     }
   }
 
   componentDidMount() {
-    fetch(dataSource)
-      .then(response => response.json())
-      .then(responseJson => {
-        let dateNow = Date.now();
-
-        // filter out any dates before now
-        let eventsAfterNow = responseJson.filter(e => {
-          const dateStrSplit = e.startdate.split("-");
-
-          // https://stackoverflow.com/questions/141348/what-is-the-best-way-to-parse-a-time-into-a-date-object-from-user-input-in-javas
-          if (e.endtime) {
-            const time = e.endtime.match(/(\d+)(?::(\d\d))?\s*(p?)/);
-            const hours = parseInt(
-              parseInt(time[1]) + (parseInt(time[1]) < 12 && time[3] ? 12 : 0)
-            );
-            const minutes = parseInt(time[2]) || 0;
-
-            // year, month, date, hour, minute, second, millisecond
-            const dateStart = new Date(
-              dateStrSplit[0],
-              dateStrSplit[1] - 1,
-              dateStrSplit[2],
-              hours,
-              minutes,
-              0,
-              0
-            );
-
-            return dateStart.getTime() >= dateNow;
-          } else {
-            return true;
-          }
-        });
-
-        this.setState({
-          isLoading: false,
-          events: eventsAfterNow
-        });
-      })
-      .catch(error => {
-        this.setState({
-          isLoading: false,
-          error: error,
-          text: null
-        });
+    fetchAndStore(dataSource, eventData => {
+      this.setState({
+        isLoading: false,
+        events: eventData
       });
+    });
   }
 
   // toggle the searchLimitGeo state mutate
   toggleSearchLimitGeo() {
-    const newSearchLimitGeo = !this.state.searchLimitGeo;
+    const newSearchLimitGeo = !this.state.filter.limitGeo;
     if (newSearchLimitGeo) {
       this.updateGeo();
     }
 
     // mutate the state
+    // todo is there a better way to do this?
+    const newFilter = this.state.filter;
+    newFilter.limitGeo = newSearchLimitGeo;
     this.setState({
-      searchLimitGeo: newSearchLimitGeo
+      filter: newFilter
     });
   }
 
   onTextChangeSearchLimitDistance(searchLimitDistance) {
     // mutate the state
+
+    const newFilter = this.state.filter;
+    newFilter.limitDistance = searchLimitDistance;
     this.setState({
-      searchLimitDistance: searchLimitDistance
+      filter: newFilter
     });
   }
 
   // update geo and notify state mutation
   updateGeo() {
+    if (!this.state.filter.limitDistance) {
+      const newFilter = this.state.filter;
+      newFilter.limitDistance = mileRadius;
+      this.setState({ filter: newFilter });
+    }
+
     // get current location
     navigator.geolocation.getCurrentPosition(
       position => {
@@ -138,63 +116,139 @@ export default class HomeScreen extends React.Component {
     navigate("EventView", { event: selectedEvent });
   }
 
-  getEventsFiltered() {
-    return this.state.events.filter(e => {
-      // geo filter
-      if (
-        this.state.searchLimitGeo &&
-        this.state.latitude &&
-        this.state.longitude
-      ) {
-        // filter on current location
-        const eventCoord = e.coordinates.split(",");
-        if (
-          distance(
-            Number(eventCoord[0]),
-            Number(eventCoord[1]),
-            this.state.latitude,
-            this.state.longitude
-          ) > this.state.searchLimitDistance
-        ) {
-          return false;
+  selectCategories() {
+    const { navigate } = this.props.navigation;
+
+    // flatten, sort event categories
+    const allCatArray = this.state.events
+      .reduce((accum, element) => {
+        return accum.concat(element.data);
+      }, [])
+      .reduce((accum, element) => {
+        return accum.concat(element.categories);
+      }, [])
+      .reduce((accum, element) => {
+        if (accum.indexOf(element) == -1 && element) {
+          accum.push(element);
         }
-      }
+        return accum;
+      }, [])
+      .sort();
 
-      // text filter
-      if (this.state.searchText) {
-        const st = this.state.searchText.toUpperCase();
-        return (
-          e.title.toUpperCase().includes(st) ||
-          e.location.toUpperCase().includes(st) ||
-          e.startdate.toUpperCase().includes(st)
-        );
-      }
+    // object array {category, selected}
+    const eventCatObjArray = allCatArray.map(v => {
+      return {
+        category: v,
+        selected: this.state.filter.categories.includes(v)
+      };
+    });
 
-      return true;
+    navigate("CategorySelect", {
+      categories: eventCatObjArray,
+      onToggleCategory: this.onToggleCategory
     });
   }
 
+  onToggleCategory(newCategory) {
+    let newFilter = this.state.filter;
+
+    newFilter.categories = newCategory;
+
+    this.setState({
+      filter: newFilter
+    });
+  }
+
+  // return filtered list of events
+  getEventsFiltered() {
+    return this.state.events
+      .map(section => {
+        return {
+          title: section.title,
+          data: section.data.filter(e => {
+            // geo filter
+            if (
+              this.state.filter.limitGeo &&
+              this.state.latitude &&
+              this.state.longitude
+            ) {
+              // filter on current location
+              const eventCoord = e.coordinates;
+
+              if (
+                distance(
+                  eventCoord.latitude,
+                  eventCoord.longitude,
+                  this.state.latitude,
+                  this.state.longitude
+                ) > this.state.filter.limitDistance
+              ) {
+                return false;
+              }
+            }
+
+            // category filter
+            if (
+              this.state.filter.categories.length > 0 &&
+              e.categories.length > 0
+            ) {
+              let isCat = false;
+              e.categories.forEach(c => {
+                if (this.state.filter.categories.includes(c)) {
+                  isCat = true;
+                }
+              });
+
+              if (!isCat) {
+                return false;
+              }
+            }
+
+            // text filter
+            if (this.state.filter.searchText) {
+              const st = this.state.filter.searchText.toUpperCase();
+              return (
+                e.title.toUpperCase().includes(st) ||
+                e.location.toUpperCase().includes(st) ||
+                e.startdate.toUpperCase().includes(st)
+              );
+            }
+
+            return true;
+          })
+        };
+      })
+      .filter(e => {
+        // hide empty sections
+        return e.data.length > 0;
+      });
+  }
+
   render() {
-    let listView;
-    if (this.state.error) {
-      listView = <Text>Error loading event data</Text>;
-    }
-    if (this.state.isLoading) {
-      listView = <ActivityIndicator size="large" style={{ paddingTop: 150 }} />;
-    } else {
-      listView = (
-        <EventList events={this.getEventsFiltered()} onPress={this.rowSelect} />
-      );
-    }
+    const filteredEventList = this.getEventsFiltered();
+
+    const currentEventsNumber = filteredEventList.reduce(
+      (sum, value) => sum + value.data.length,
+      0
+    );
+
+    const totalEventsNumber = this.state.events.reduce(
+      (sum, value) => sum + value.data.length,
+      0
+    );
 
     return (
-      <Container>
+      <Container style={{ backgroundColor: "white" }}>
         <Header searchBar rounded>
           <Item>
             <Icon name="ios-search" />
             <Input
               placeholder="Search"
-              onChangeText={searchText => this.setState({ searchText })}
+              onChangeText={searchText => {
+                const newFilter = this.state.filter;
+                newFilter.searchText = searchText;
+                this.setState({ filter: newFilter });
+              }}
             />
           </Item>
 
@@ -208,7 +262,9 @@ export default class HomeScreen extends React.Component {
               }}
             >
               {Platform.OS === "ios"
-                ? <Text>{this.state.searchVisible ? "Less" : "More"}</Text>
+                ? <Text>
+                    {this.state.searchVisible ? "Less" : "More"}
+                  </Text>
                 : <Icon
                     name={
                       this.state.searchVisible
@@ -219,21 +275,24 @@ export default class HomeScreen extends React.Component {
             </Button>
           </Right>
         </Header>
-
         {this.state.searchVisible &&
           <SearchView
-            latitude={this.state.latitude}
-            longitude={this.state.longitude}
-            searchLimitGeo={this.state.searchLimitGeo}
-            searchLimitDistance={this.state.searchLimitDistance}
+            searchLimitGeo={this.state.filter.limitGeo}
+            searchLimitDistance={this.state.filter.limitDistance}
             onTextChangeSearchLimitDistance={
               this.onTextChangeSearchLimitDistance
             }
             toggleSearchLimitGeo={this.toggleSearchLimitGeo}
-            currentEventsNumber={this.getEventsFiltered().length}
-            totalEventsNumber={this.state.events.length}
+            currentEventsNumber={currentEventsNumber}
+            totalEventsNumber={totalEventsNumber}
+            onSelectCategories={this.selectCategories}
           />}
-        {listView}
+        {this.state.error && <Text>Error loading event data</Text>}
+
+        {this.state.isLoading &&
+          <ActivityIndicator size="large" style={{ paddingTop: 150 }} />}
+
+        <EventList events={filteredEventList} onPress={this.rowSelect} />
       </Container>
     );
   }

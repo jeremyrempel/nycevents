@@ -3,13 +3,15 @@
 import { AppRegistry } from "react-native";
 import { Header } from "native-base";
 import { StackNavigator } from "react-navigation";
-import EventViewScreen from "./EventViewScreen";
+import EventViewOne from "./components/EventViewOne";
 import HomeScreen from "./HomeScreen";
+import CategorySelectScreen from "./components/CategorySelect";
 
 const App = StackNavigator(
   {
     Home: { screen: HomeScreen },
-    EventView: { screen: EventViewScreen }
+    EventView: { screen: EventViewOne },
+    CategorySelect: { screen: CategorySelectScreen }
   },
   {
     initialRouteName: "Home",
