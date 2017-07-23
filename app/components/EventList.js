@@ -1,5 +1,7 @@
+"use strict";
+
 import React, { Component } from "react";
-import { SectionList, StyleSheet, View, PixelRatio } from "react-native";
+import { SectionList, StyleSheet, View } from "react-native";
 import {
   Picker,
   Item,
@@ -107,12 +109,7 @@ export default class EventList extends Component {
               </Right>
             </ListItem>}
           renderSectionHeader={({ section }) =>
-            <Container
-              style={{
-                backgroundColor: "white",
-                height: sectionHeaderHeight
-              }}
-            >
+            <Container style={styles.header}>
               {/*this.props.events.findIndex(e => e.title == section.title) > 0 &&
                 <Button transparent>
                   <Icon
@@ -163,6 +160,13 @@ function showImage(remoteImageUrl) {
 }
 
 const styles = StyleSheet.create({
+  header: {
+    backgroundColor: "white",
+    height: sectionHeaderHeight,
+    borderBottomColor: "#bbb",
+    borderBottomWidth: StyleSheet.hairlineWidth
+  },
+
   container: {
     flex: 1
   },
