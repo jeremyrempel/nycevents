@@ -1,7 +1,7 @@
 "use strict";
 
 import { Platform } from "react-native";
-import React from "react";
+import React, { Component } from "react";
 import {
   Container,
   Content,
@@ -18,37 +18,68 @@ import {
   CheckBox
 } from "native-base";
 
-export default class CategorySelect extends React.Component {
+export default class CategorySelect extends Component {
   static navigationOptions = { header: null };
 
-  onToggleCategoryLocal(catToggle) {
-    const { setParams } = this.props.navigation;
-    const { onToggleCategory } = this.props.navigation.state.params;
-    const { categories } = this.props.navigation.state.params;
+  constructor(props) {
+    super(props);
 
-    let newCategory = categories.map(c => {
+    this.state = {
+      categories: this.props.navigation.state.params.categories
+    };
+  }
+
+  onToggleCategoryLocal(catToggle) {
+    const newCategory = this.state.categories.map(c => {
       return {
         category: c.category,
         selected: c.category == catToggle ? !c.selected : c.selected
       };
     });
 
-    // set local params
-    setParams({ categories: newCategory });
+    this.setState({
+      categories: newCategory
+    });
+  }
 
-    // update global state
-    onToggleCategory(catToggle);
+  clearAll() {
+    const newCategory = this.state.categories.map(c => {
+      return {
+        category: c.category,
+        selected: false
+      };
+    });
+
+    this.setState({
+      categories: newCategory
+    });
+  }
+
+  goBack() {
+    const { onToggleCategory } = this.props.navigation.state.params;
+    const { goBack } = this.props.navigation;
+
+    let selectCategories = this.state.categories.reduce((acc, cur) => {
+      if (cur.selected) {
+        acc.push(cur.category);
+      }
+      return acc;
+    }, []);
+
+    selectCategories = selectCategories ? selectCategories : [];
+
+    onToggleCategory(selectCategories);
+    goBack();
   }
 
   render() {
-    const { goBack } = this.props.navigation;
-    const { categories } = this.props.navigation.state.params;
+    const { categories } = this.state;
 
     return (
       <Container>
         <Header>
           <Left>
-            <Button onPress={() => goBack()} transparent>
+            <Button onPress={() => this.goBack()} transparent>
               <Icon ios="ios-arrow-back" android="md-arrow-back" />
             </Button>
           </Left>
@@ -56,7 +87,7 @@ export default class CategorySelect extends React.Component {
             <Title>Select Categories</Title>
           </Body>
           <Right>
-            <Button transparent>
+            <Button transparent onPress={() => this.clearAll()}>
               {Platform.OS === "ios"
                 ? <Text>Clear</Text>
                 : <Icon name="md-arrow-round-up" />}

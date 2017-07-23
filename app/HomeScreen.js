@@ -149,14 +149,10 @@ export default class HomeScreen extends React.Component {
     });
   }
 
-  onToggleCategory(c) {
+  onToggleCategory(newCategory) {
     let newFilter = this.state.filter;
-    const index = newFilter.categories.indexOf(c);
-    if (index > -1) {
-      newFilter.categories.splice(index, 1);
-    } else {
-      newFilter.categories.push(c);
-    }
+
+    newFilter.categories = newCategory;
 
     this.setState({
       filter: newFilter
