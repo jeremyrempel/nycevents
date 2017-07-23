@@ -78,39 +78,38 @@ export default class EventList extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        <SectionList
-          ref={ref => (this.listRef = ref)}
-          keyExtractor={(item, index) => index}
-          getItemLayout={this.getItemLayout}
-          sections={this.props.events}
-          renderItem={({ item }) =>
-            <ListItem
-              style={{ height: rowHeight }}
-              onPress={() => this.props.onPress(item)}
-            >
-              {showImage(item.image)}
-              <Body style={{ flex: 1 }}>
-                <Text>
-                  {item.title}
-                </Text>
-                <Text note>
-                  {item.starttime}
-                </Text>
-                <Text note>
-                  {item.boro}
-                </Text>
-                <Text note>
-                  {item.categories.join(", ")}
-                </Text>
-              </Body>
-              <Right>
-                <Icon name="arrow-forward" />
-              </Right>
-            </ListItem>}
-          renderSectionHeader={({ section }) =>
-            <Container style={styles.header}>
-              {/*this.props.events.findIndex(e => e.title == section.title) > 0 &&
+      <SectionList
+        ref={ref => (this.listRef = ref)}
+        keyExtractor={(item, index) => index}
+        getItemLayout={this.getItemLayout}
+        sections={this.props.events}
+        renderItem={({ item }) =>
+          <ListItem
+            style={{ height: rowHeight }}
+            onPress={() => this.props.onPress(item)}
+          >
+            {showImage(item.image)}
+            <Body style={{ flex: 1 }}>
+              <Text>
+                {item.title}
+              </Text>
+              <Text note>
+                {item.starttime}
+              </Text>
+              <Text note>
+                {item.boro}
+              </Text>
+              <Text note>
+                {item.categories.join(", ")}
+              </Text>
+            </Body>
+            <Right>
+              <Icon name="arrow-forward" />
+            </Right>
+          </ListItem>}
+        renderSectionHeader={({ section }) =>
+          <Container style={styles.header}>
+            {/*this.props.events.findIndex(e => e.title == section.title) > 0 &&
                 <Button transparent>
                   <Icon
                     name="arrow-back"
@@ -118,20 +117,20 @@ export default class EventList extends Component {
                   />
                 </Button>*/}
 
-              <Picker
-                textStyle={{ color: "rgb(14, 122, 254)" }}
-                iosHeader="Select date"
-                mode="dropdown"
-                placeholder={moment(section.title).format("dddd, MMMM Do")}
-                onValueChange={this.scrollToIndex}
-              >
-                {this.props.events.map(function(o, i) {
-                  const k = moment(o.title).format("dddd, MMMM Do");
-                  return <Item label={k} value={i} key={i} />;
-                })}
-              </Picker>
+            <Picker
+              textStyle={{ color: "rgb(14, 122, 254)" }}
+              iosHeader="Select date"
+              mode="dropdown"
+              placeholder={moment(section.title).format("dddd, MMMM Do")}
+              onValueChange={this.scrollToIndex}
+            >
+              {this.props.events.map(function(o, i) {
+                const k = moment(o.title).format("dddd, MMMM Do");
+                return <Item label={k} value={i} key={i} />;
+              })}
+            </Picker>
 
-              {/*this.props.events.findIndex(e => e.title == section.title) + 1 <
+            {/*this.props.events.findIndex(e => e.title == section.title) + 1 <
                 this.props.events.length &&
                 <Button transparent>
                   <Icon
@@ -139,9 +138,8 @@ export default class EventList extends Component {
                     onPress={() => this.scrollToNext(section.title)}
                   />
                 </Button>*/}
-            </Container>}
-        />
-      </View>
+          </Container>}
+      />
     );
   }
 }
@@ -165,10 +163,6 @@ const styles = StyleSheet.create({
     height: sectionHeaderHeight,
     borderBottomColor: "#bbb",
     borderBottomWidth: StyleSheet.hairlineWidth
-  },
-
-  container: {
-    flex: 1
   },
   sectionHeader: {
     height: sectionHeaderHeight
