@@ -224,11 +224,6 @@ export default class HomeScreen extends React.Component {
       });
   }
 
-  componentWillUpdate(nextProps, nextState) {
-    console.log("componentWillUpdate");
-    console.log(this.props.navigation.state);
-  }
-
   render() {
     const filteredEventList = this.getEventsFiltered();
 
