@@ -59,6 +59,8 @@ export default class CategorySelect extends Component {
     const { onToggleCategory } = this.props.navigation.state.params;
     const { goBack } = this.props.navigation;
 
+    goBack();
+
     let selectCategories = this.state.categories.reduce((acc, cur) => {
       if (cur.selected) {
         acc.push(cur.category);
@@ -69,7 +71,6 @@ export default class CategorySelect extends Component {
     selectCategories = selectCategories ? selectCategories : [];
 
     onToggleCategory(selectCategories);
-    goBack();
   }
 
   render() {
