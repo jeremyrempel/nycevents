@@ -43,8 +43,8 @@ export default class EventViewOne extends React.Component {
               <Icon name="arrow-back" />
             </Button>
           </Left>
-          <Body>
-            <Segment style={{ paddingRight: 25 }}>
+          <Body style={{ flex: 1.5 }}>
+            <Segment style={{ alignSelf: "flex-start" }}>
               <Button
                 first
                 active={this.state.currentView == "detail"}
