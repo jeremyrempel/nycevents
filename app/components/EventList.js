@@ -83,6 +83,7 @@ export default class EventList extends Component {
         keyExtractor={(item, index) => index}
         getItemLayout={this.getItemLayout}
         sections={this.props.events}
+        stickySectionHeadersEnabled={true}
         renderItem={({ item }) =>
           <ListItem
             style={{ height: rowHeight }}
