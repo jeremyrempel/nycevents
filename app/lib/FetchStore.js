@@ -3,9 +3,9 @@ import moment from "moment";
 
 export async function fetchAndStore(url, onEventDataReady) {
   try {
-    let now = Date.now();
+    const now = Date.now();
     // 12 hrs ago
-    let yesterday = now - 3.6e6 * 12;
+    const yesterday = now - 3.6e6 * 12;
 
     let lastFetch = JSON.parse(
       await AsyncStorage.getItem("@nycevents:lastfetch")
@@ -38,13 +38,13 @@ export async function fetchAndStore(url, onEventDataReady) {
     );
 
     // filter out any dates before now
-    const eventsAfterNow = allEvents.filter(e => {
-      if (e.endDateTime) {
-        return now <= new Date(e.endDateTime).getTime();
-      } else if (e.startDateTime) {
-        return now <= new Date(e.startDateTime).getTime();
-      }
-      return true;
+    const eventsAfterNow = allEvents.map(section => {
+      return {
+        title: section.title,
+        data: section.data.filter(e => {
+          return moment(now).isBefore(e.endDateTime);
+        })
+      };
     });
 
     onEventDataReady(eventsAfterNow);
@@ -109,26 +109,6 @@ function cleanupData(eventList) {
       .decodeHTML()
       .replace(/<(?:.|\n)*?>/gm, "");
 
-    function parseDate(dateStr, timeStr) {
-      const dateStrSplit = dateStr.split("-");
-      const time = timeStr.match(/(\d+)(?::(\d\d))?\s*(p?)/);
-      const hours = parseInt(
-        parseInt(time[1]) + (parseInt(time[1]) < 12 && time[3] ? 12 : 0)
-      );
-      const minutes = parseInt(time[2]) || 0;
-
-      // year, month, date, hour, minute, second, millisecond
-      const newDateTime = new Date(
-        dateStrSplit[0],
-        dateStrSplit[1] - 1,
-        dateStrSplit[2],
-        hours,
-        minutes,
-        0,
-        0
-      );
-      return newDateTime;
-    }
     return e;
   });
 
@@ -155,9 +135,30 @@ function cleanupData(eventList) {
   return newValue;
 }
 
-String.prototype.decodeHTML = function() {
+const parseDate = (dateStr, timeStr) => {
+  const dateStrSplit = dateStr.split("-");
+  const time = timeStr.match(/(\d+)(?::(\d\d))?\s*(p?)/);
+  const hours = parseInt(
+    parseInt(time[1]) + (parseInt(time[1]) < 12 && time[3] ? 12 : 0)
+  );
+  const minutes = parseInt(time[2]) || 0;
+
+  // year, month, date, hour, minute, second, millisecond
+  const newDateTime = new Date(
+    dateStrSplit[0],
+    dateStrSplit[1] - 1,
+    dateStrSplit[2],
+    hours,
+    minutes,
+    0,
+    0
+  );
+  return newDateTime;
+};
+
+String.prototype.decodeHTML = function () {
   var map = { gt: ">" /* , … */ };
-  return this.replace(/&(#(?:x[0-9a-f]+|\d+)|[a-z]+);?/gi, function($0, $1) {
+  return this.replace(/&(#(?:x[0-9a-f]+|\d+)|[a-z]+);?/gi, function ($0, $1) {
     if ($1[0] === "#") {
       return String.fromCharCode(
         $1[1].toLowerCase() === "x"
@@ -170,7 +171,7 @@ String.prototype.decodeHTML = function() {
   });
 };
 
-String.prototype.replaceAll = function(search, replacement) {
+String.prototype.replaceAll = function (search, replacement) {
   var target = this;
   return target.replace(new RegExp(search, "g"), replacement);
 };
