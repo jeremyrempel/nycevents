@@ -13,7 +13,6 @@ import {
   Input
 } from "native-base";
 import EventList from "./components/EventList";
-import SearchView from "./components/SearchView";
 import { distance } from "./lib/Distance";
 import { fetchAndStore } from "./lib/FetchStore";
 
@@ -191,14 +190,14 @@ export default class HomeScreen extends React.Component {
             <Button
               transparent
               onPress={() => {
-                this.setState({
-                  searchVisible: !this.state.searchVisible
-                });
+                const { navigate } = this.props.navigation;
+                navigate("FilterView", { filter: this.state.filter });
+
               }}
             >
               {Platform.OS === "ios"
                 ? <Text>
-                    {this.state.searchVisible ? "Less" : "More"}
+                    {this.state.searchVisible ? "Less" : "Filter"}
                   </Text>
                 : <Icon
                     name={

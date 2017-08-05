@@ -109,7 +109,7 @@ export default class EventList extends Component {
             </Right>
           </ListItem>}
         renderSectionHeader={({ section }) =>
-          <Container style={styles.header}>
+          <Container style={styles.header} >
             {/*this.props.events.findIndex(e => e.title == section.title) > 0 &&
                 <Button transparent>
                   <Icon
@@ -118,18 +118,7 @@ export default class EventList extends Component {
                   />
                 </Button>*/}
 
-            <Picker
-              textStyle={{ color: "rgb(14, 122, 254)" }}
-              iosHeader="Select date"
-              mode="dropdown"
-              placeholder={moment(section.title).format("dddd, MMMM Do")}
-              onValueChange={this.scrollToIndex}
-            >
-              {this.props.events.map(function(o, i) {
-                const k = moment(o.title).format("dddd, MMMM Do");
-                return <Item label={k} value={i} key={i} />;
-              })}
-            </Picker>
+            <Text style={{ padding: 10 }}>{moment(section.title).format("dddd, MMMM Do")}</Text>
 
             {/*this.props.events.findIndex(e => e.title == section.title) + 1 <
                 this.props.events.length &&
@@ -166,7 +155,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth
   },
   sectionHeader: {
-    height: sectionHeaderHeight
+    height: sectionHeaderHeight,
+    backgroundColor: "white"
   },
   item: {
     height: rowHeight
