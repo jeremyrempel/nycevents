@@ -159,73 +159,8 @@ export default class HomeScreen extends React.Component {
     });
   }
 
-  // return filtered list of events
-  getEventsFiltered() {
-    return this.state.events
-      .map(section => {
-        return {
-          title: section.title,
-          data: section.data.filter(e => {
-            // geo filter
-            if (
-              this.state.filter.limitGeo &&
-              this.state.latitude &&
-              this.state.longitude
-            ) {
-              // filter on current location
-              const eventCoord = e.coordinates;
-
-              if (
-                distance(
-                  eventCoord.latitude,
-                  eventCoord.longitude,
-                  this.state.latitude,
-                  this.state.longitude
-                ) > this.state.filter.limitDistance
-              ) {
-                return false;
-              }
-            }
-
-            // category filter
-            if (
-              this.state.filter.categories.length > 0 &&
-              e.categories.length > 0
-            ) {
-              let isCat = false;
-              e.categories.forEach(c => {
-                if (this.state.filter.categories.includes(c)) {
-                  isCat = true;
-                }
-              });
-
-              if (!isCat) {
-                return false;
-              }
-            }
-
-            // text filter
-            if (this.state.filter.searchText) {
-              const st = this.state.filter.searchText.toUpperCase();
-              return (
-                e.title.toUpperCase().includes(st) ||
-                e.location.toUpperCase().includes(st) ||
-                e.startdate.toUpperCase().includes(st)
-              );
-            }
-
-            return true;
-          })
-        };
-      })
-      .filter(e => {
-        // hide empty sections
-        return e.data.length > 0;
-      });
-  }
-
   render() {
-    const filteredEventList = this.getEventsFiltered();
+    const filteredEventList = getEventsFiltered(this.state.events, this.state.filter, this.state.latitude, this.longitude);
 
     const currentEventsNumber = filteredEventList.reduce(
       (sum, value) => sum + value.data.length,
@@ -297,3 +232,69 @@ export default class HomeScreen extends React.Component {
     );
   }
 }
+
+
+// return filtered list of events
+const getEventsFiltered = (eventList, filter, latitude, longitude) => {
+  return eventList
+    .map(section => {
+      return {
+        title: section.title,
+        data: section.data.filter(e => {
+          // geo filter
+          if (
+            filter.limitGeo &&
+            latitude &&
+            longitude
+          ) {
+            // filter on current location
+            const eventCoord = e.coordinates;
+
+            if (
+              distance(
+                eventCoord.latitude,
+                eventCoord.longitude,
+                latitude,
+                longitude
+              ) > filter.limitDistance
+            ) {
+              return false;
+            }
+          }
+
+          // category filter
+          if (
+            filter.categories.length > 0 &&
+            e.categories.length > 0
+          ) {
+            let isCat = false;
+            e.categories.forEach(c => {
+              if (filter.categories.includes(c)) {
+                isCat = true;
+              }
+            });
+
+            if (!isCat) {
+              return false;
+            }
+          }
+
+          // text filter
+          if (filter.searchText) {
+            const st = filter.searchText.toUpperCase();
+            return (
+              e.title.toUpperCase().includes(st) ||
+              e.location.toUpperCase().includes(st) ||
+              e.startdate.toUpperCase().includes(st)
+            );
+          }
+
+          return true;
+        })
+      };
+    })
+    .filter(e => {
+      // hide empty sections
+      return e.data.length > 0;
+    });
+};
