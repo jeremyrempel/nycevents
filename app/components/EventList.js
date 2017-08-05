@@ -98,7 +98,7 @@ export default class EventList extends Component {
                 {item.starttime}
               </Text>
               <Text note>
-                {item.boro}
+                {item.borough}
               </Text>
               <Text note>
                 {item.categories.join(", ")}
